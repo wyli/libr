@@ -120,7 +120,6 @@ static void group_classes_as_binary(const problem *prob,
 
     for(i = 0; i < l; i++) {
 
-        double this_label = prob->rel[i];
         double y = prob->y[i];
         if(y > 0) {
             ++count[0];

@@ -10,8 +10,6 @@ struct Xw {
     double value;
 };
 
-void *pt2Object; // for static solver
-
 typedef int (*compfn)(const void *, const void *);
 int comparedouble(struct Xw *a, struct Xw *b) {
 
@@ -494,53 +492,4 @@ void l2r_l2_primal_fun::info(const char *fmt, ...) {
     vsprintf(buf, fmt, ap);
     va_end(ap);
     (*tron_print_string)(buf);
-}
-
-/**** for the TNC solver **/
-
-int l2r_l2_primal_fun::calculator(double x[], double *f, double g[], void *state) {
-
-    *f = this->fun(x);
-    this->grad(x, g);
-    return 0;
-}
-// static caller
-int l2r_l2_primal_fun::wrapper_fun(
-        double x[], double *f, double g[], void *state) {
-
-
-    l2r_l2_primal_fun* myself = (l2r_l2_primal_fun*) pt2Object;
-    myself->calculator(x, f, g, state);
-    //*f = fun(x);
-    //grad(x, g);
-    return 0;
-}
-
-int l2r_l2_primal_fun::run_solver(
-        double w[], double *f, double *gradient,
-        void *state, double lower_bound[], double upper_bound[],
-         tnc_message message, double fmin) {
-
-    pt2Object = (void *) this;
-    tnc(get_nr_variable(), w, f, gradient, // output
-        l2r_l2_primal_fun::wrapper_fun, // calculator
-        state,
-        lower_bound,
-        upper_bound,
-        NULL,
-        NULL,
-        message,
-        -1,
-        10,
-        -1,
-        10.0,
-        0.0001,
-        fmin,
-        -1,
-        -1,
-        -1,
-        -1,
-        NULL);
-
-    return 0;
 }

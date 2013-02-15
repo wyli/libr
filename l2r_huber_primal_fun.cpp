@@ -3,7 +3,6 @@
 #include <stdarg.h>
 #include <cstring>
 #include "tron.h"
-#include "tnc.h"
 
 void *l2r_huber_ptr;
 
@@ -521,46 +520,4 @@ void l2r_huber_primal_fun::info(const char *fmt, ...) {
     vsprintf(buf, fmt, ap);
     va_end(ap);
     (*tron_print_string)(buf);
-}
-
-int l2r_huber_primal_fun::calculator(
-        double x[], double *f, double g[], void *state) {
-
-    *f = this->fun(x);
-    this->grad(x, g);
-    return 0;
-}
-
-int l2r_huber_primal_fun::wrapper_fun(
-        double x[], double *f, double g[], void *state) {
-
-    l2r_huber_primal_fun *myself = (l2r_huber_primal_fun*) l2r_huber_ptr;
-    myself->calculator(x, f, g, state);
-
-    return 0;
-}
-
-int l2r_huber_primal_fun::run_solver(
-        double w[], double *f, double *gradient,
-        void *state, double lower_bound[], double upper_bound[],
-        tnc_message message, double fmin) {
-
-    l2r_huber_ptr = (void *) this;
-    tnc(get_nr_variable(), w, f, gradient,
-            l2r_huber_primal_fun::wrapper_fun,
-            state,
-            lower_bound,
-            upper_bound,
-            NULL,
-            NULL,
-            message,
-            -1,
-            10,
-            -1,
-            10.0,
-            0.001,
-            fmin,
-            -1, -1, -1, -1, NULL);
-
-    return 0;
 }
