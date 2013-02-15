@@ -107,16 +107,14 @@ static void group_classes_as_binary(const problem *prob,
         int **start_ret, int **count_ret, int *perm) {
 
     int l = prob->l;
-    int nr_class = 4;
+    int nr_class = 2;
     int *label = Malloc(int, 2);
-    int *count = Malloc(int, 4);
+    int *count = Malloc(int, 2);
     int *data_label = Malloc(int, (size_t)l);
     int i;
 
     count[0] = 0;
     count[1] = 0;
-    count[2] = 0;
-    count[3] = 0;
     label[0] = 1;
     label[1] = -1;
 
@@ -124,18 +122,12 @@ static void group_classes_as_binary(const problem *prob,
 
         double this_label = prob->rel[i];
         double y = prob->y[i];
-        if(this_label > 0 && y > 0) {
+        if(y > 0) {
             ++count[0];
             data_label[i] = 0;
-        } else if(this_label < 0 && y > 0) {
+        } else if(y < 0) {
             ++count[1];
             data_label[i] = 1;
-        } else if(this_label > 0 && y < 0) {
-            ++count[2];
-            data_label[i] = 2;
-        } else if(this_label < 0 && y < 0) {
-            ++ count[3];
-            data_label[i] = 3;
         } else {
             info("unknown label, I'm quiting");
             exit(1);
@@ -160,10 +152,8 @@ static void group_classes_as_binary(const problem *prob,
 
         start[i] = start[i-1] + count[i-1];
     }
-    info("High positive: %d\n", count[0]);
-    info("Low positive: %d\n", count[1]);
-    info("High negative: %d\n", count[2]);
-    info("Low negative: %d\n", count[3]);
+    info("Positive: %d\n", count[0]);
+    info("Negative: %d\n", count[1]);
 
     *nr_class_ret = 2;
     *label_ret = label;
@@ -188,83 +178,91 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
 	{
 		case L2R_LR: // 0
 		{
-            l2r_l2_primal_fun *fun_obj=NULL;
-            fun_obj = new l2r_l2_primal_fun(prob, Cp);
-            fun_obj->set_print_string(liblinear_print_string);
-            TRON tron_obj(fun_obj, primal_solver_tol);
-            tron_obj.set_print_string(liblinear_print_string);
-            tron_obj.tron(w);
-            delete fun_obj;
-            break;
+            info("not implemented L2R_LR");
+            exit(-1);
+            //l2r_l2_primal_fun *fun_obj=NULL;
+            //fun_obj = new l2r_l2_primal_fun(prob, Cp);
+            //fun_obj->set_print_string(liblinear_print_string);
+            //TRON tron_obj(fun_obj, primal_solver_tol);
+            //tron_obj.set_print_string(liblinear_print_string);
+            //tron_obj.tron(w);
+            //delete fun_obj;
+            //break;
 		}
 		case L2R_L2LOSS_SVC_DUAL: // 1
         {
-            l2r_l2_primal_fun *fun_obj=NULL;
-            double *lower_bound = new double[prob->l];
-            double *upper_bound = new double[prob->l];
-            for(int i = 0; i < prob->l; i++) {
+            info("not implemented L2R_L2Loss_svc_dual");
+            exit(-1);
+            //l2r_l2_primal_fun *fun_obj=NULL;
+            //double *lower_bound = new double[prob->l];
+            //double *upper_bound = new double[prob->l];
+            //for(int i = 0; i < prob->l; i++) {
 
-                lower_bound[i] = -HUGE_VAL;
-                upper_bound[i] = HUGE_VAL;
-            }
-            double f = 0;
-            double *gradient = new double[prob->l]();
-            void *state = NULL;
-            double fmin = 1.0;
-            tnc_message message = TNC_MSG_ALL;
-            fun_obj = new l2r_l2_primal_fun(prob, Cp);
-            fun_obj->set_print_string(liblinear_print_string);
-            fun_obj->run_solver(
-                w, &f, gradient,
-                state, lower_bound, upper_bound,
-                  message, fmin);
+            //    lower_bound[i] = -HUGE_VAL;
+            //    upper_bound[i] = HUGE_VAL;
+            //}
+            //double f = 0;
+            //double *gradient = new double[prob->l]();
+            //void *state = NULL;
+            //double fmin = 1.0;
+            //tnc_message message = TNC_MSG_ALL;
+            //fun_obj = new l2r_l2_primal_fun(prob, Cp);
+            //fun_obj->set_print_string(liblinear_print_string);
+            //fun_obj->run_solver(
+            //    w, &f, gradient,
+            //    state, lower_bound, upper_bound,
+            //      message, fmin);
 
-            delete[] lower_bound;
-            delete[] upper_bound;
-            delete[] gradient;
-            delete fun_obj;
-            break;
+            //delete[] lower_bound;
+            //delete[] upper_bound;
+            //delete[] gradient;
+            //delete fun_obj;
+            //break;
 			//solve_l2r_l1l2_svc(prob, w, eps, Cp, Cn, L2R_L2LOSS_SVC_DUAL);
 			//break;
         }
 		case L2R_L2LOSS_SVC: // 2
 		{
-            l2r_huber_primal_fun *fun_obj = NULL;
-            fun_obj = new l2r_huber_primal_fun(prob, Cp);
-            TRON tron_obj(fun_obj, primal_solver_tol);
-            fun_obj->set_print_string(liblinear_print_string);
-            tron_obj.set_print_string(liblinear_print_string);
-            tron_obj.tron(w);
-            delete fun_obj;
-            break;
+            info("not implemented L2R_L2Loss_SVC");
+            exit(-1);
+            //l2r_huber_primal_fun *fun_obj = NULL;
+            //fun_obj = new l2r_huber_primal_fun(prob, Cp);
+            //TRON tron_obj(fun_obj, primal_solver_tol);
+            //fun_obj->set_print_string(liblinear_print_string);
+            //tron_obj.set_print_string(liblinear_print_string);
+            //tron_obj.tron(w);
+            //delete fun_obj;
+            //break;
 		}
 		case L2R_L1LOSS_SVC_DUAL:
         {
-            l2r_huber_primal_fun *fun_obj=NULL;
-            double *lower_bound = new double[prob->l];
-            double *upper_bound = new double[prob->l];
-            for(int i = 0; i < prob->l; i++) {
+            info("not implemented L2R_L1Loss_SVC_DUAL");
+            exit(-1);
+            //l2r_huber_primal_fun *fun_obj=NULL;
+            //double *lower_bound = new double[prob->l];
+            //double *upper_bound = new double[prob->l];
+            //for(int i = 0; i < prob->l; i++) {
 
-                lower_bound[i] = -HUGE_VAL;
-                upper_bound[i] = HUGE_VAL;
-            }
-            double f = 0;
-            double *gradient = new double[prob->l]();
-            void *state = NULL;
-            double fmin = 1.0;
-            tnc_message message = TNC_MSG_ALL;
-            fun_obj = new l2r_huber_primal_fun(prob, Cp);
-            fun_obj->set_print_string(liblinear_print_string);
-            fun_obj->run_solver(
-                w, &f, gradient,
-                state, lower_bound, upper_bound,
-                  message, fmin);
+            //    lower_bound[i] = -HUGE_VAL;
+            //    upper_bound[i] = HUGE_VAL;
+            //}
+            //double f = 0;
+            //double *gradient = new double[prob->l]();
+            //void *state = NULL;
+            //double fmin = 1.0;
+            //tnc_message message = TNC_MSG_ALL;
+            //fun_obj = new l2r_huber_primal_fun(prob, Cp);
+            //fun_obj->set_print_string(liblinear_print_string);
+            //fun_obj->run_solver(
+            //    w, &f, gradient,
+            //    state, lower_bound, upper_bound,
+            //      message, fmin);
 
-            delete[] lower_bound;
-            delete[] upper_bound;
-            delete[] gradient;
-            delete fun_obj;
-            break;
+            //delete[] lower_bound;
+            //delete[] upper_bound;
+            //delete[] gradient;
+            //delete fun_obj;
+            //break;
 			//solve_l2r_l1l2_svc(prob, w, eps, Cp, Cn, L2R_L1LOSS_SVC_DUAL);
 			//break;
         }
