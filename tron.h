@@ -7,11 +7,13 @@
 class function
 {
 public:
-	virtual double fun(double *w) = 0 ;
-	virtual void grad(double *w, double *g) = 0 ;
-	virtual void Hv(double *s, double *Hs) = 0 ;
+	virtual double fun(double *w) = 0;
+	virtual void pairGrad(double *w, int i, int j, double *g) = 0;
+	virtual double pairLoss(double *w, int i, int j) = 0;
 
-	virtual int get_nr_variable(void) = 0 ;
+	virtual int get_nr_variable(void) = 0;
+    virtual int get_nr_positive(void) = 0;
+    virtual int get_nr_negative(void) = 0;
 	virtual ~function(void){}
 };
 
@@ -33,6 +35,27 @@ private:
 	function *fun_obj;
 	void info(const char *fmt,...);
 	void (*tron_print_string)(const char *buf);
+};
+
+class SAG {
+
+public:
+    SAG(const function *fun_obj, double eps = 0.01, double L_0 = 10);
+    ~SAG();
+
+    void solver(double *w);
+    void set_print_string(void (*i_print) (const char *buf));
+
+private:
+    void info(const char *fmt,...);
+    void (*tron_print_string)(const char *buf);
+
+    int pos, neg;
+    double *sumy;
+    double eps;
+    function *fun_obj;
+    double L;
+    double ***cache;
 };
 
 class TruncatedNewton {
@@ -61,7 +84,7 @@ class l2r_l2_primal_fun:public function {
         ~l2r_l2_primal_fun();
 
         double fun(double *w);
-        void grad(double *w, double *g);
+        void pairGrad(double *w, int i, int j, double *g);
         void Hv(double *s, double *Hs);
 
         int get_nr_variable(void);
@@ -112,29 +135,26 @@ class l2r_huber_primal_fun:public function {
         ~l2r_huber_primal_fun();
 
         double fun(double *w);
-        void grad(double *w, double *g);
-        void Hv(double *s, double *Hs);
+        void pairGrad(double *w, int i, int j, double *g);
+        double pairLoss(double *w, int i, int j);
+
+        double pairDistance(int, int);
+        double rankLoss(double);
+        double rankLossGrad(double);
+        double classLoss(double);
+        double classLossGrad(double);
 
         int get_nr_variable(void);
+        int get_nr_positive(void);
+        int get_nr_negative(void);
         void set_print_string(void (*i_print) (const char *buf));
-        int run_solver(
-                double *, double *, double *,
-                void *, double *, double *,
-                tnc_message, double);
 
    private:
         void info(const char *, ...);
         void (*tron_print_string)(const char *);
         void Xv(double *, double *);
-        void XTv(double *, double *);
-        void subXv(double *, double *);
-        void subXTv(double *, double *);
-        void shiftXW(double *);
-        void findab(double *, double *, double *, 
-                struct Xw *, const double *, int **);
+        double wTx(double *, int);
 
-        int calculator(double *, double *, double *, void *);
-        static int wrapper_fun(double *, double *, double *, void *);
 
         const problem *prob;
         const int *start;
@@ -143,18 +163,6 @@ class l2r_huber_primal_fun:public function {
         double *C_e;
         double C_r;
 
-        int sizeI;
-        int *I;
         double *z;
-
-        double totalViolation;
-
-        double *z_r;
-        double *alpha;
-        double *beta;
-        double *theta;
-        double *xs;
-        int **cache;
-        struct Xw *xw_sorted;
 };
 #endif

@@ -222,16 +222,14 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
         }
 		case L2R_L2LOSS_SVC: // 2
 		{
-            info("not implemented L2R_L2Loss_SVC");
-            exit(-1);
-            //l2r_huber_primal_fun *fun_obj = NULL;
-            //fun_obj = new l2r_huber_primal_fun(prob, Cp);
-            //TRON tron_obj(fun_obj, primal_solver_tol);
-            //fun_obj->set_print_string(liblinear_print_string);
-            //tron_obj.set_print_string(liblinear_print_string);
-            //tron_obj.tron(w);
-            //delete fun_obj;
-            //break;
+            l2r_huber_primal_fun *fun_obj = NULL;
+            fun_obj = new l2r_huber_primal_fun(prob, Cp);
+            SAG sag_solver(fun_obj, primal_solver_tol);
+            fun_obj->set_print_string(liblinear_print_string);
+            sag_solver.set_print_string(liblinear_print_string);
+            sag_solver.solver(w);
+            delete fun_obj;
+            break;
 		}
 		case L2R_L1LOSS_SVC_DUAL:
         {

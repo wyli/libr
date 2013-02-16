@@ -157,9 +157,8 @@ double l2r_l2_primal_fun::fun(double *w) {
     return(f);
 }
 
-void l2r_l2_primal_fun::grad(double *w, double *g) {
+void l2r_l2_primal_fun::pairGrad(double *w, int i, int j, double *g) {
 
-    int i;
     double *y = prob->y;
     int w_size = get_nr_variable();
 
