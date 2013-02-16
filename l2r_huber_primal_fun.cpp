@@ -51,7 +51,7 @@ double l2r_huber_primal_fun::fun(double *w) {
     for(i = 0; i < prob->l; i++) {
 
         z[i] = y[i] * z[i];
-        f_c +=  2 * C_e[i] * classLoss(z[i]);
+        f_c +=  2.0 * C_e[i] * classLoss(z[i]);
     }
 
     for(i = start[0]; i < start[1]; i++) {
@@ -79,8 +79,8 @@ void l2r_huber_primal_fun::pairGrad(double *w, int i, int j, double *g) {
 
     t = wTx(w, i) - wTx(w, j) - pairDistance(i, j);
     dl = rankLossGrad(t);
-    dl_i = classLossGrad(wTx(w, i));
-    dl_j = classLossGrad(wTx(w, j));
+    dl_i = classLossGrad((prob->y[i]) * wTx(w, i));
+    dl_j = classLossGrad((prob->y[j]) * wTx(w, j));
 
     feature_node **s = prob->x;
     feature_node *s_i = s[i];
@@ -90,7 +90,7 @@ void l2r_huber_primal_fun::pairGrad(double *w, int i, int j, double *g) {
 
         g[s_i->index-1] = 
             dl * (s_i->value - s_j->value)
-            + dl_i * s_i->value 
+            + dl_i * s_i->value
             + dl_j * s_j->value;
         s_i++;
         s_j++;
@@ -119,8 +119,9 @@ double l2r_huber_primal_fun::rankLoss(double t) {
 
     if(t <= 0) {
 
-        return 1.0 - 2.0 * t;
+        return 1.0 - t;
     } 
+
     return 0;
 }
 
@@ -153,7 +154,7 @@ double l2r_huber_primal_fun::classLossGrad(double t) {
 
     if(t < 1) {
 
-        return 2*t - 2;
+        return 2.0 * t - 2.0;
     }
     
     return 0;
@@ -169,6 +170,23 @@ double l2r_huber_primal_fun::wTx(double *w, int i) {
         s_i++;
     }
     return dotprod;
+}
+
+void l2r_huber_primal_fun::Xv(double *v, double *Xv) {
+
+    int i;
+    feature_node **x = prob->x;
+
+    for(i = 0; i < prob->l; i++) {
+
+        feature_node *s = x[i];
+        Xv[i] = 0;
+        while(s->index != -1) {
+
+            Xv[i] += v[s->index-1] * s->value;
+            s++;
+        }
+    }
 }
 
 int l2r_huber_primal_fun::get_nr_variable(void) {
@@ -202,19 +220,3 @@ void l2r_huber_primal_fun::info(const char *fmt, ...) {
     (*tron_print_string)(buf);
 }
 
-void l2r_huber_primal_fun::Xv(double *v, double *Xv) {
-
-    int i;
-    feature_node **x = prob->x;
-
-    for(i = 0; i < prob->l; i++) {
-
-        feature_node *s = x[i];
-        Xv[i] = 0;
-        while(s->index != -1) {
-
-            Xv[i] += v[s->index-1] * s->value;
-            s++;
-        }
-    }
-}

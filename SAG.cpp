@@ -39,10 +39,10 @@ SAG::SAG(const function *fun_obj, double eps, double L_0) {
     pos = this->fun_obj->get_nr_positive();
     neg = this->fun_obj->get_nr_negative();
     int i, j;
-    cache = new double**[pos];
+    cache = new double**[pos]();
     for(i = 0; i < pos; i++) {
 
-        cache[i] = new double*[neg];
+        cache[i] = new double*[neg]();
         for(j = 0; j < neg; j++) {
 
             cache[i][j] = new double[w_size]();
@@ -70,35 +70,40 @@ void SAG::solver(double *w) {
     int i, j, k, inc = 1;
     int w_size = fun_obj->get_nr_variable();
     int total = pos + neg;
+    double k_1 = 0;
 
     w = new double[w_size]();
     while(1) {
 
         for(i = 0; i < pos; i++) {
             for(j = 0; j < neg; j++) {
-                eps = 1/L;
+                eps = 2.0/(L+1);
 
                 double *grad = new double[w_size]();
                 fun_obj->pairGrad(w, i, j+pos, grad);
                 for(k = 0; k < w_size; k++) {
 
                     sumy[k] = sumy[k] - cache[i][j][k] + grad[k];
-                    w[k] = (1 - eps*0.5) * w[k] - (eps/total)*sumy[k];
+                    w[k] = (1.0 - eps) * w[k] - (eps/total)*sumy[k];
                     cache[i][j][k] = grad[k];
                 }
 
                 double normF = dnrm2_(&w_size, grad, &inc);
+                info("gradient: %f  i: %d  j: %d\n", normF, i, j+pos);
+                for(k = 0; k < w_size; k++) {
+                    info("w: %f\n", w[i]);
+                }
 
                 if(normF > 1e-8) {
 
                     double *temp = new double[w_size]();
-                    for(int k = 0; k < w_size; k++) {
+                    for(k = 0; k < w_size; k++) {
 
-                        temp[k] = w[k] - (1/L)*grad[k];
+                        temp[k] = w[k] - (1.0/L)*grad[k];
                     }
 
-                    double a = fun_obj->pairLoss(grad, i, j+pos) 
-                        - fun_obj->pairLoss(temp, i, j+pos) + (1/2*L) * normF;
+                    double a = fun_obj->pairLoss(temp, i, j+pos) 
+                        - fun_obj->pairLoss(w, i, j+pos) + (1.0/(2.0*L)) * normF;
 
                     if(a > 0) {
 
@@ -107,16 +112,18 @@ void SAG::solver(double *w) {
 
                     delete[] temp;
                 }
-                info("fun: %.5f\n", fun_obj->fun(w));
+
                 delete[] grad;
                 double k = (1.0/total) * dnrm2_(&w_size, sumy, &inc);
-                if(k < 0.001) {
-                    
+                if(k - k_1 == 0) {
+
                     return;
                 }
+                k_1 = k;
                 L = L * pow(2, (-1/pos*neg));
             }
         }
+        info("one pass fun: %.5f\n", fun_obj->fun(w));
     }
 }
 

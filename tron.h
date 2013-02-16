@@ -40,7 +40,7 @@ private:
 class SAG {
 
 public:
-    SAG(const function *fun_obj, double eps = 0.01, double L_0 = 10);
+    SAG(const function *fun_obj, double eps = 0.01, double L_0 = 1);
     ~SAG();
 
     void solver(double *w);

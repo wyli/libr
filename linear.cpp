@@ -224,7 +224,7 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
 		{
             l2r_huber_primal_fun *fun_obj = NULL;
             fun_obj = new l2r_huber_primal_fun(prob, Cp);
-            SAG sag_solver(fun_obj, primal_solver_tol);
+            SAG sag_solver(fun_obj);
             fun_obj->set_print_string(liblinear_print_string);
             sag_solver.set_print_string(liblinear_print_string);
             sag_solver.solver(w);
