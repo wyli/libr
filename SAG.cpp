@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <cmath>
+#include <cstring>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,13 +29,12 @@ void SAG::info(const char *fmt, ...) {
     (*tron_print_string)(buf);
 }
 
-SAG::SAG(const function *fun_obj, double eps, double L_0) {
+SAG::SAG(const function *fun_obj, double L_0) {
 
     set_print_string(print_string_sag);
     this->fun_obj = const_cast<function *>(fun_obj);
-    int w_size = this->fun_obj->get_nr_variable();
+    w_size = this->fun_obj->get_nr_variable();
     sumy = new double[w_size]();
-    this->eps = eps;
     this->L = L_0;
     pos = this->fun_obj->get_nr_positive();
     neg = this->fun_obj->get_nr_negative();
@@ -65,67 +65,92 @@ SAG::~SAG() {
     delete[] sumy;
 }
 
-void SAG::solver(double *w) {
+void SAG::solver(double *w_out) {
 
+    int pass = 0;
     int i, j, k, inc = 1;
-    int w_size = fun_obj->get_nr_variable();
-    int total = pos + neg;
     double k_1 = 0;
+    double alpha;
+    double n = double(pos*neg);
 
-    w = new double[w_size]();
-    while(1) {
+    double *w = new double[w_size]();
+    L = 1;
+    while(pass < 50) {
 
-        for(i = 0; i < pos; i++) {
+        for(i = pos-1; i >= 0; i--) {
             for(j = 0; j < neg; j++) {
-                eps = 2.0/(L+1);
+
 
                 double *grad = new double[w_size]();
                 fun_obj->pairGrad(w, i, j+pos, grad);
+ 
+                L = lineSearchWrapper(L, grad, w, i, j);
+                alpha = 2.0/(L + 1);
+
                 for(k = 0; k < w_size; k++) {
 
                     sumy[k] = sumy[k] - cache[i][j][k] + grad[k];
-                    w[k] = (1.0 - eps) * w[k] - (eps/total)*sumy[k];
+                    w[k] = (1.0 - alpha/n) * w[k] - (alpha/n) * sumy[k];
                     cache[i][j][k] = grad[k];
                 }
 
-                double normF = dnrm2_(&w_size, grad, &inc);
-                info("gradient: %f  i: %d  j: %d\n", normF, i, j+pos);
-                for(k = 0; k < w_size; k++) {
-                    info("w: %f\n", w[i]);
-                }
 
-                if(normF > 1e-8) {
-
-                    double *temp = new double[w_size]();
-                    for(k = 0; k < w_size; k++) {
-
-                        temp[k] = w[k] - (1.0/L)*grad[k];
-                    }
-
-                    double a = fun_obj->pairLoss(temp, i, j+pos) 
-                        - fun_obj->pairLoss(w, i, j+pos) + (1.0/(2.0*L)) * normF;
-
-                    if(a > 0) {
-
-                        L = L * 2;
-                    }
-
-                    delete[] temp;
-                }
-
-                delete[] grad;
-                double k = (1.0/total) * dnrm2_(&w_size, sumy, &inc);
-                if(k - k_1 == 0) {
-
-                    return;
+                double k = (1.0/(pos*neg)) * dnrm2_(&w_size, sumy, &inc);
+                if(k - k_1 > 0) {
+                    //info("L: %f, fun %f\n", L, fun_obj->fun(w));
+                    //memcpy(w_out, w, sizeof(double)*(size_t)w_size);
+                    //delete[] w;
+                    //return;
                 }
                 k_1 = k;
-                L = L * pow(2, (-1/pos*neg));
+                delete[] grad;
             }
         }
-        info("one pass fun: %.5f\n", fun_obj->fun(w));
+        info("L: %f, fun %f\n", L, fun_obj->fun(w));
+        pass++;
     }
+    memcpy(w_out, w, sizeof(double)*(size_t)w_size);
+    delete[] w;
 }
+
+double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
+
+    double diff;
+    do {
+        diff = lineSearch(L, grad, w, i, j);
+        if(diff > 0.0003) {
+            L = L * 2;
+        }
+    } while(diff > 1);
+
+    return L;
+}
+
+double SAG::lineSearch(double L, double *grad, double *w, int i, int j) {
+
+    int inc = 1, k;
+    double a;
+
+    double normF = dnrm2_(&w_size, grad, &inc);
+    if(normF > 1e-8) {
+
+        double *temp = new double[w_size]();
+        for(k = 0; k < w_size; k++) {
+
+            temp[k] = w[k] - (1.0/L)*grad[k];
+        }
+
+        a = fun_obj->pairLoss(temp, i, j+pos) 
+            - fun_obj->pairLoss(w, i, j+pos)
+            + (1.0/(2.0*L)) * normF;
+
+        delete[] temp;
+    } else {
+        a = 0;
+    }
+    return a;
+}
+
 
 void SAG::set_print_string(void (*print_string) (const char *buf)) {
 

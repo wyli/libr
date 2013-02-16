@@ -40,7 +40,7 @@ private:
 class SAG {
 
 public:
-    SAG(const function *fun_obj, double eps = 0.01, double L_0 = 1);
+    SAG(const function *fun_obj, double L_0 = 1);
     ~SAG();
 
     void solver(double *w);
@@ -49,13 +49,15 @@ public:
 private:
     void info(const char *fmt,...);
     void (*tron_print_string)(const char *buf);
+    double lineSearch(double L, double *grad, double *w, int i, int j);
+    double lineSearchWrapper(double L, double *grad, double *w, int i, int j);
 
     int pos, neg;
     double *sumy;
-    double eps;
     function *fun_obj;
     double L;
     double ***cache;
+    int w_size;
 };
 
 class TruncatedNewton {

@@ -50,19 +50,21 @@ double l2r_huber_primal_fun::fun(double *w) {
 
     for(i = 0; i < prob->l; i++) {
 
-        z[i] = y[i] * z[i];
+        z[i] = y[i] * z[i] - 1;
         f_c +=  2.0 * C_e[i] * classLoss(z[i]);
+        //f_c +=  2.0 * classLoss(z[i]);
     }
 
     for(i = start[0]; i < start[1]; i++) {
-        for(j = start[1]; j <l; j++) {
+        for(j = start[1]; j < l; j++) {
 
             double t = z[i] - z[j] - pairDistance(i, j);
             f_r += rankLoss(t);
         }
     }
 
-    f += (1.0/l)*(f_c + f_r);
+    f += (f_c + f_r);
+    f = (1/l) * f;
     return f;
 }
 
@@ -79,8 +81,8 @@ void l2r_huber_primal_fun::pairGrad(double *w, int i, int j, double *g) {
 
     t = wTx(w, i) - wTx(w, j) - pairDistance(i, j);
     dl = rankLossGrad(t);
-    dl_i = classLossGrad((prob->y[i]) * wTx(w, i));
-    dl_j = classLossGrad((prob->y[j]) * wTx(w, j));
+    dl_i = classLossGrad((prob->y[i]) * wTx(w, i) - 1);
+    dl_j = classLossGrad((prob->y[j]) * wTx(w, j) - 1);
 
     feature_node **s = prob->x;
     feature_node *s_i = s[i];
@@ -90,8 +92,8 @@ void l2r_huber_primal_fun::pairGrad(double *w, int i, int j, double *g) {
 
         g[s_i->index-1] = 
             dl * (s_i->value - s_j->value)
-            + dl_i * s_i->value
-            + dl_j * s_j->value;
+            + dl_i * s_i->value * prob->y[i] * C_e[i]
+            + dl_j * s_j->value * prob->y[j] * C_e[j];
         s_i++;
         s_j++;
     }
@@ -104,14 +106,15 @@ double l2r_huber_primal_fun::pairLoss(double *w, int i, int j) {
 
     t = wTx(w, i) - wTx(w, j) - pairDistance(i, j);
     dl = rankLoss(t);
-    dl += classLoss((prob->y[i]) * wTx(w, i));
-    dl += classLoss((prob->y[j]) * wTx(w, j));
+    dl += classLoss((prob->y[i]) * wTx(w, i) - 1) * C_e[i];
+    dl += classLoss((prob->y[j]) * wTx(w, j) - 1) * C_e[j];
 
     return dl;
 }
 
 double l2r_huber_primal_fun::rankLoss(double t) {
 
+    // huber loss
     if(t < 1 && t > 0) {
 
         return (1.0 - t) * (1.0 - t);
@@ -142,9 +145,10 @@ double l2r_huber_primal_fun::rankLossGrad(double t) {
 
 double l2r_huber_primal_fun::classLoss(double t) {
 
-    if(t < 1) {
+    // squared soft margin
+    if(t < 0) {
 
-        return (1.0 - t) * (1.0 - t);
+        return t * t;
     }
 
     return 0;
@@ -152,9 +156,9 @@ double l2r_huber_primal_fun::classLoss(double t) {
 
 double l2r_huber_primal_fun::classLossGrad(double t) {
 
-    if(t < 1) {
+    if(t < 0) {
 
-        return 2.0 * t - 2.0;
+        return 2.0 * t;
     }
     
     return 0;
