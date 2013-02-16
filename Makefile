@@ -20,7 +20,7 @@ lib: linear.o l2r_l2_primal_fun.o SAG.o l2r_huber_primal_fun.o blas/blas.a
 train: SAG.o l2r_l2_primal_fun.o l2r_huber_primal_fun.o linear.o train.c blas/blas.a
 	$(CXX) $(CFLAGS) -o train train.c SAG.o l2r_l2_primal_fun.o l2r_huber_primal_fun.o linear.o $(LIBS)
 
-predict: tnc.o linear.o predict.c blas/blas.a
+predict: linear.o predict.c blas/blas.a
 	$(CXX) $(CFLAGS) -o predict predict.c SAG.o l2r_l2_primal_fun.o l2r_huber_primal_fun.o linear.o $(LIBS)
 
 #tron.o: tron.cpp tron.h tnc.h
