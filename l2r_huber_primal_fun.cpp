@@ -64,7 +64,7 @@ double l2r_huber_primal_fun::fun(double *w) {
     }
 
     f += (f_c + f_r);
-    f = (1/l) * f;
+    f = (1.0/(count[1]*count[0])) * f;
     return f;
 }
 
