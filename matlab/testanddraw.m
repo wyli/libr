@@ -5,14 +5,14 @@ global mind
 global maxd
 figure1 = figure;
 
-%rind = randsample(size(targets, 1), n);
-targets(1) = 1.6;
-targets(end) = -1.6;
+rind = randsample(size(targets, 1), n);
+%targets(1) = 1.6;
+%targets(end) = -1.6;
 scaledSamples = scaledata(samples, 1);
 %scaledSamples = [scaledSamples, ones(size(samples, 1), 1)*C_1]; 
 % if n > 0
 % rind = 1:n;
-%targets(rind) = targets(rind) * 2;
+targets(rind) = targets(rind) * 2;
 %scaledSamples(rind, end) = 1; % adding end of the matrix for C_n
 %scaledSamples(rind, end) = scaledSamples(rind, end) * C_2;
 % end
