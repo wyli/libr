@@ -29,16 +29,16 @@ void SAG::info(const char *fmt, ...) {
     (*tron_print_string)(buf);
 }
 
-SAG::SAG(const function *fun_obj, double L_0) {
+SAG::SAG(const function *fun_obj, double eps) {
 
     set_print_string(print_string_sag);
     this->fun_obj = const_cast<function *>(fun_obj);
     w_size = this->fun_obj->get_nr_variable();
     sumy = new double[w_size]();
-    this->L = L_0;
     pos = this->fun_obj->get_nr_positive();
     neg = this->fun_obj->get_nr_negative();
     int i, j;
+    this->eps = eps;
     cache = new double**[pos]();
     for(i = 0; i < pos; i++) {
 
@@ -69,13 +69,14 @@ void SAG::solver(double *w_out) {
 
     int pass = 0;
     int i, j, k, inc = 1;
-    double k_1 = 0;
+    int notConverged = 1;
+    double old_score = HUGE_VAL;
     double alpha;
     double n = double(pos*neg);
 
     double *w = new double[w_size]();
-    L = 1;
-    while(pass < 50) {
+    double L = 1;
+    while(notConverged) {
 
         for(i = pos-1; i >= 0; i--) {
             for(j = 0; j < neg; j++) {
@@ -93,20 +94,17 @@ void SAG::solver(double *w_out) {
                     w[k] = (1.0 - alpha/n) * w[k] - (alpha/n) * sumy[k];
                     cache[i][j][k] = grad[k];
                 }
-
-
-                double k = (1.0/(pos*neg)) * dnrm2_(&w_size, sumy, &inc);
-                if(k - k_1 > 0) {
-                    //info("L: %f, fun %f\n", L, fun_obj->fun(w));
-                    //memcpy(w_out, w, sizeof(double)*(size_t)w_size);
-                    //delete[] w;
-                    //return;
-                }
-                k_1 = k;
                 delete[] grad;
             }
         }
-        info("L: %f, fun %f\n", L, fun_obj->fun(w));
+        
+        double now_score = fun_obj->fun(w);
+        if(old_score < now_score) {
+
+            notConverged = 0;
+        }
+        info("L: %f, fun %f, pre %f\n", L, now_score, old_score);
+        old_score = now_score;
         pass++;
     }
     memcpy(w_out, w, sizeof(double)*(size_t)w_size);
@@ -118,7 +116,7 @@ double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
     double diff;
     do {
         diff = lineSearch(L, grad, w, i, j);
-        if(diff > 0.0003) {
+        if(diff > eps) {
             L = L * 2;
         }
     } while(diff > 1);

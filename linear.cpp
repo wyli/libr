@@ -171,14 +171,18 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
 			pos++;
 	neg = prob->l - pos;
 
-	double primal_solver_tol = eps*max(min(pos,neg), 1)/prob->l;
-
 	switch(param->solver_type)
 	{
 		case L2R_LR: // 0
 		{
-            info("not implemented L2R_LR");
-            exit(-1);
+            l2r_l2_primal_fun *fun_obj = NULL;
+            fun_obj = new l2r_l2_primal_fun(prob, Cp);
+            SAG sag_solver(fun_obj, eps);
+            fun_obj->set_print_string(liblinear_print_string);
+            sag_solver.set_print_string(liblinear_print_string);
+            sag_solver.solver(w);
+            delete fun_obj;
+            break;
             //l2r_l2_primal_fun *fun_obj=NULL;
             //fun_obj = new l2r_l2_primal_fun(prob, Cp);
             //fun_obj->set_print_string(liblinear_print_string);
@@ -224,7 +228,7 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
 		{
             l2r_huber_primal_fun *fun_obj = NULL;
             fun_obj = new l2r_huber_primal_fun(prob, Cp);
-            SAG sag_solver(fun_obj);
+            SAG sag_solver(fun_obj, eps);
             fun_obj->set_print_string(liblinear_print_string);
             sag_solver.set_print_string(liblinear_print_string);
             sag_solver.solver(w);

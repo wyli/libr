@@ -10,6 +10,11 @@ public:
 	virtual double fun(double *w) = 0;
 	virtual void pairGrad(double *w, int i, int j, double *g) = 0;
 	virtual double pairLoss(double *w, int i, int j) = 0;
+    double rankLoss(double);
+    double rankLossGrad(double);
+    double classLoss(double);
+    double classLossGrad(double);
+
 
 	virtual int get_nr_variable(void) = 0;
     virtual int get_nr_positive(void) = 0;
@@ -40,7 +45,7 @@ private:
 class SAG {
 
 public:
-    SAG(const function *fun_obj, double L_0 = 1);
+    SAG(const function *fun_obj, double eps = 0.0008);
     ~SAG();
 
     void solver(double *w);
@@ -55,9 +60,9 @@ private:
     int pos, neg;
     double *sumy;
     function *fun_obj;
-    double L;
     double ***cache;
     int w_size;
+    double eps;
 };
 
 class TruncatedNewton {
@@ -79,56 +84,6 @@ private:
 };
 
 
-class l2r_l2_primal_fun:public function {
-
-    public:
-        l2r_l2_primal_fun(const problem *prob, double weight);
-        ~l2r_l2_primal_fun();
-
-        double fun(double *w);
-        void pairGrad(double *w, int i, int j, double *g);
-        void Hv(double *s, double *Hs);
-
-        int get_nr_variable(void);
-        void set_print_string(void (*i_print) (const char *buf));
-        static int wrapper_fun(double x[], double *f, double g[], void *state);
-        int run_solver(
-            double w[], double *f, double gradient[],
-            void *state, double lower_bound[], double upper_bound[],
-             tnc_message message, double fmin);
-    private:
-        const problem *prob;
-        const int *start;
-        const int *count;
-
-        void Xv(double *v, double *Xv);
-        void XTv(double *v, double *XTv);
-        void subXv(double *v, double *Xv);
-        void subXTv(double *v, double *XTv);
-        void findab(double *a, double *b,
-                struct Xw* Xw_sorted, const double* notsorted, int** cache);
-        void CXT_alpha_zr_beta(
-                const double *z_r,
-                const double *beta,
-                double *g);
-
-        int calculator(double x[], double *f, double g[], void *state);
-        void info(const char *fmt, ...);
-        void (*tron_print_string)(const char *buf);
-
-        double *C_e; //penalti for regular svm
-        double C_r;
-        struct Xw *Xw_sorted;
-        double *z_r;
-        double *z;
-        double *Xs;
-        int sizeI;
-        int *I; //active data points indicator
-        double *alpha;
-        double *beta;
-        int** cache; // index cache
-        double totalViolation; // number of rank violating
-};
 
 class l2r_huber_primal_fun:public function {
 
@@ -141,17 +96,17 @@ class l2r_huber_primal_fun:public function {
         double pairLoss(double *w, int i, int j);
 
         double pairDistance(int, int);
-        double rankLoss(double);
-        double rankLossGrad(double);
-        double classLoss(double);
-        double classLossGrad(double);
+        virtual double rankLoss(double);
+        virtual double rankLossGrad(double);
+        virtual double classLoss(double);
+        virtual double classLossGrad(double);
 
         int get_nr_variable(void);
         int get_nr_positive(void);
         int get_nr_negative(void);
         void set_print_string(void (*i_print) (const char *buf));
 
-   private:
+   protected:
         void info(const char *, ...);
         void (*tron_print_string)(const char *);
         void Xv(double *, double *);
@@ -166,5 +121,14 @@ class l2r_huber_primal_fun:public function {
         double C_r;
 
         double *z;
+};
+
+class l2r_l2_primal_fun:public l2r_huber_primal_fun {
+public:
+    l2r_l2_primal_fun(const problem *prob, double weight):l2r_huber_primal_fun(prob, weight){};
+    double rankLoss(double);
+    double rankLossGrad(double);
+    double classLoss(double);
+    double classLossGrad(double);
 };
 #endif
