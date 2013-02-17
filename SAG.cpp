@@ -68,7 +68,7 @@ SAG::~SAG() {
 void SAG::solver(double *w_out) {
 
     int pass = 0;
-    int i, j, k, inc = 1;
+    int i, j, k;
     int notConverged = 1;
     double old_score = HUGE_VAL;
     double alpha;
@@ -103,7 +103,7 @@ void SAG::solver(double *w_out) {
 
             notConverged = 0;
         }
-        //info("L: %f, fun %f, pre %f\n", L, now_score, old_score);
+        info("L: %f, fun %f, pre %f\n", L, now_score, old_score);
         old_score = now_score;
         pass++;
     }

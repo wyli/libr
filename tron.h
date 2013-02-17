@@ -22,26 +22,6 @@ public:
 	virtual ~function(void){}
 };
 
-class TRON {
-
-public:
-	TRON(const function *fun_obj, double eps = 0.1, int max_iter = 1000);
-	~TRON();
-
-	void tron(double *w);
-	void set_print_string(void (*i_print) (const char *buf));
-
-private:
-	int trcg(double delta, double *g, double *s, double *r);
-	double norm_inf(int n, double *x);
-
-	double eps;
-	int max_iter;
-	function *fun_obj;
-	void info(const char *fmt,...);
-	void (*tron_print_string)(const char *buf);
-};
-
 class SAG {
 
 public:
@@ -64,26 +44,6 @@ private:
     int w_size;
     double eps;
 };
-
-class TruncatedNewton {
-
-public:
-    TruncatedNewton(const function *fun_obj);
-    ~TruncatedNewton();
-
-    void searchW(double *w);
-    void set_print_string(void (*i_print) (const char *buf));
-
-private:
-    void linearCG(double *x, double *b, int iter, double tol);
-    void info(const char *fmt, ...);
-    void (*tron_print_string)(const char *buf);
-
-    function *fun_obj;
-    int n;
-};
-
-
 
 class l2r_huber_primal_fun:public function {
 
