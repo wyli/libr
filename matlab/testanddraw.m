@@ -16,7 +16,8 @@ targets(rind) = targets(rind) * 2;
 %scaledSamples(rind, end) = 1; % adding end of the matrix for C_n
 %scaledSamples(rind, end) = scaledSamples(rind, end) * C_2;
 % end
-mo = train(sparse(targets), sparse(scaledSamples), sprintf('-s %d -c %f', type, cost));
+sprintf('-s %f -e %.10f', type, cost)
+mo = train(sparse(targets), sparse(scaledSamples), sprintf('-s %d -e %.10f', type, cost));
 
 
 % evaluate svm on meshgrid in order to visualise decision boundary

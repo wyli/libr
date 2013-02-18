@@ -29,8 +29,8 @@ C_H = 0.5;
 %for n = 1:12:60
 n = 70;
 x = -5:1:5;
-for n = 2:10:250
-    r = testanddraw(samples, targets, n, 2, 100);%normal and high
+for n = 2:20:250
+    r = testanddraw(samples, targets, n, 2, 0.000000001);%normal and high
 end
 % [R,C] = ndgrid(-10:0.2:15, -10:0.2:15);
 % mat = gaussC(R,C, 4, muC);

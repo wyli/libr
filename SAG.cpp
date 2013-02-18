@@ -99,11 +99,15 @@ void SAG::solver(double *w_out) {
         }
         
         double now_score = fun_obj->fun(w);
-        if(old_score < now_score) {
+        if(old_score < now_score || pass > 200) {
 
             notConverged = 0;
+            if(pass > 200) {
+
+                info("Quiting because max_iter reached\n");
+            }
         }
-        info("L: %f, fun %f, pre %f\n", L, now_score, old_score);
+        info("Pass: %d, L: %f, fun %f, pre %f\n", pass, L, now_score, old_score);
         old_score = now_score;
         pass++;
     }

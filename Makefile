@@ -1,6 +1,7 @@
 CXX ?= g++
 CC ?= gcc
-CFLAGS = -Wall -Wconversion -O3 -fPIC
+#CFLAGS = -Wall -Wconversion -O3 -fPIC
+CFLAGS = -O2 -DNDEBUG -march=native
 #CFLAGS = -Wall -Wconversion -g
 LIBS = blas/blas.a
 SHVER = 1
