@@ -40,6 +40,7 @@ private:
 
     int pos, neg;
     double *sumy;
+    double *temp_grad;
     function *fun_obj;
     double ***cache;
     int w_size;
@@ -82,6 +83,7 @@ class l2r_huber_primal_fun:public function {
         double *C_e;
         double C_r;
         double C_b;
+        double nr_over;
 
         double *z;
 };

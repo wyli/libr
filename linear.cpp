@@ -177,7 +177,7 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
 		{
             l2r_l2_primal_fun *fun_obj = NULL;
             fun_obj = new l2r_l2_primal_fun(prob, Cp, param->p);
-            info("C_p: %f, C_b: %f\n", Cp, param->p);
+            info("C_r: %e, C_c: %e\n", Cp, param->p);
             SAG sag_solver(fun_obj, eps);
             fun_obj->set_print_string(liblinear_print_string);
             sag_solver.set_print_string(liblinear_print_string);
@@ -194,7 +194,7 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
 		{
             l2r_huber_primal_fun *fun_obj = NULL;
             fun_obj = new l2r_huber_primal_fun(prob, Cp, param->p);
-            info("C_p: %f, C_b: %f\n", Cp, param->p);
+            info("C_r: %e, C_c: %e\n", Cp, param->p);
             SAG sag_solver(fun_obj, eps);
             fun_obj->set_print_string(liblinear_print_string);
             sag_solver.set_print_string(liblinear_print_string);
@@ -365,6 +365,7 @@ model* train(const problem *prob, const parameter *param)
 		free(perm);
 		free(sub_prob.x);
 		free(sub_prob.y);
+        free(sub_prob.C_e);
 		free(weighted_C);
 	}
 	return model_;
@@ -424,6 +425,8 @@ void cross_validation(const problem *prob, const parameter *param, int nr_fold, 
 		free_and_destroy_model(&submodel);
 		free(subprob.x);
 		free(subprob.y);
+        free(subprob.C_e);
+        free(subprob.rel);
 	}
 	free(fold_start);
 	free(perm);

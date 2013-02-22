@@ -35,6 +35,7 @@ SAG::SAG(const function *fun_obj, double eps) {
     this->fun_obj = const_cast<function *>(fun_obj);
     w_size = this->fun_obj->get_nr_variable();
     sumy = new double[w_size]();
+    temp_grad = new double[w_size]();
     pos = this->fun_obj->get_nr_positive();
     neg = this->fun_obj->get_nr_negative();
     int i, j;
@@ -63,6 +64,7 @@ SAG::~SAG() {
     }
     delete[] cache;
     delete[] sumy;
+    delete[] temp_grad;
 }
 
 void SAG::solver(double *w_out) {
@@ -78,6 +80,7 @@ void SAG::solver(double *w_out) {
     double n = double(pos*neg);
     double one_coeff = 0;
     double m = 0;
+    double smoothparam = pow(2, (-1/n));
 
     double *w = new double[w_size]();
     double L = 1;
@@ -99,7 +102,7 @@ void SAG::solver(double *w_out) {
  
                 L = lineSearchWrapper(L, grad, w, i, j);
                 alpha = 2.0/(L + 1);
-                one_coeff = 1.0 - alpha/n;
+                one_coeff = 1.0 - 2.0 * alpha / n;
 
                 if(pass > 0) {
 
@@ -119,6 +122,8 @@ void SAG::solver(double *w_out) {
                 cache[i][j][1] = wa[1];
                 wa[0] = 0;
                 wa[1] = 0;
+
+                L = L * smoothparam;
             }
         }
         delete[] grad;
@@ -130,7 +135,7 @@ void SAG::solver(double *w_out) {
 
             notConverged = 0;
         }
-        info("\nPass: %d, L: %e, sumY: %f,  fun: %f\n",
+        info("\nPass: %d, L: %e, sumY: %e,  fun: %e\n",
                 pass, L, now_score, fun_obj->fun(w));
         if(pass > 20) {
 
@@ -147,12 +152,15 @@ void SAG::solver(double *w_out) {
 double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
 
     int inc = 1;
-    double diff;
-    double pairloss_ij = fun_obj->pairLoss(w, i, j+pos);
-    double normF = dnrm2_(&w_size, grad, &inc);
 
-    diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;
-    while(diff > eps && L < 1e100) {
+    double normF = dnrm2_(&w_size, grad, &inc);
+    if(normF < 1e-8) return L;
+
+    double pairloss_ij = fun_obj->pairLoss(w, i, j+pos);
+
+    double diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;
+
+    while(diff > 0 && L < 1e100) {
         info(".");
         L = L * 2.0;
         diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;
@@ -163,25 +171,13 @@ double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
 
 double SAG::lineSearch(double L, double normF, double *grad, double *w, int i, int j) {
 
-    int k;
-    double a;
+    double delta = 1.0/L;
+    for(int k = 0; k < w_size; k++) {
 
-    if(normF > 1e-8) {
-
-        double *temp = new double[w_size]();
-        for(k = 0; k < w_size; k++) {
-
-            temp[k] = w[k] - (1.0/L)*grad[k];
-        }
-
-        a = fun_obj->pairLoss(temp, i, j+pos) 
-            + (1.0/(2.0*L)) * normF;
-
-        delete[] temp;
-    } else {
-        a = 0;
+        temp_grad[k] = w[k] - delta*grad[k];
     }
-    return a;
+
+    return fun_obj->pairLoss(temp_grad, i, j+pos) + delta * normF / 2.0;
 }
 
 
