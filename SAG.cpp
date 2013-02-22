@@ -131,7 +131,7 @@ void SAG::solver(double *w_out) {
         delete[] prev;
 
         double now_score = dnrm2_(&w_size, sumy, &inc) / n;
-        if(old_score < now_score) {
+        if(old_score <= now_score) {
 
             notConverged = 0;
         }
