@@ -163,8 +163,8 @@ void do_predict(mxArray *plhs[], const mxArray *prhs[], struct model *model_, co
 			free(dec_values);
 		}
 
-		//if(predict_label == target_label)
-        if(predict_label * target_label > 0)
+		if(predict_label == target_label)
+        //if(predict_label * target_label > 0)
 			++correct;
 		//error += (predict_label-target_label)*(predict_label-target_label);
 		//sump += predict_label;

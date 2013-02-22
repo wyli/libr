@@ -176,58 +176,25 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
 		case L2R_LR: // 0
 		{
             l2r_l2_primal_fun *fun_obj = NULL;
-            fun_obj = new l2r_l2_primal_fun(prob, Cp);
+            fun_obj = new l2r_l2_primal_fun(prob, Cp, param->p);
+            info("C_p: %f, C_b: %f\n", Cp, param->p);
             SAG sag_solver(fun_obj, eps);
             fun_obj->set_print_string(liblinear_print_string);
             sag_solver.set_print_string(liblinear_print_string);
             sag_solver.solver(w);
             delete fun_obj;
             break;
-            //l2r_l2_primal_fun *fun_obj=NULL;
-            //fun_obj = new l2r_l2_primal_fun(prob, Cp);
-            //fun_obj->set_print_string(liblinear_print_string);
-            //TRON tron_obj(fun_obj, primal_solver_tol);
-            //tron_obj.set_print_string(liblinear_print_string);
-            //tron_obj.tron(w);
-            //delete fun_obj;
-            //break;
 		}
 		case L2R_L2LOSS_SVC_DUAL: // 1
         {
             info("not implemented L2R_L2Loss_svc_dual");
             exit(-1);
-            //l2r_l2_primal_fun *fun_obj=NULL;
-            //double *lower_bound = new double[prob->l];
-            //double *upper_bound = new double[prob->l];
-            //for(int i = 0; i < prob->l; i++) {
-
-            //    lower_bound[i] = -HUGE_VAL;
-            //    upper_bound[i] = HUGE_VAL;
-            //}
-            //double f = 0;
-            //double *gradient = new double[prob->l]();
-            //void *state = NULL;
-            //double fmin = 1.0;
-            //tnc_message message = TNC_MSG_ALL;
-            //fun_obj = new l2r_l2_primal_fun(prob, Cp);
-            //fun_obj->set_print_string(liblinear_print_string);
-            //fun_obj->run_solver(
-            //    w, &f, gradient,
-            //    state, lower_bound, upper_bound,
-            //      message, fmin);
-
-            //delete[] lower_bound;
-            //delete[] upper_bound;
-            //delete[] gradient;
-            //delete fun_obj;
-            //break;
-			//solve_l2r_l1l2_svc(prob, w, eps, Cp, Cn, L2R_L2LOSS_SVC_DUAL);
-			//break;
         }
 		case L2R_L2LOSS_SVC: // 2
 		{
             l2r_huber_primal_fun *fun_obj = NULL;
-            fun_obj = new l2r_huber_primal_fun(prob, Cp);
+            fun_obj = new l2r_huber_primal_fun(prob, Cp, param->p);
+            info("C_p: %f, C_b: %f\n", Cp, param->p);
             SAG sag_solver(fun_obj, eps);
             fun_obj->set_print_string(liblinear_print_string);
             sag_solver.set_print_string(liblinear_print_string);
@@ -239,81 +206,26 @@ static void train_one(const problem *prob, const parameter *param, double *w, do
         {
             info("not implemented L2R_L1Loss_SVC_DUAL");
             exit(-1);
-            //l2r_huber_primal_fun *fun_obj=NULL;
-            //double *lower_bound = new double[prob->l];
-            //double *upper_bound = new double[prob->l];
-            //for(int i = 0; i < prob->l; i++) {
-
-            //    lower_bound[i] = -HUGE_VAL;
-            //    upper_bound[i] = HUGE_VAL;
-            //}
-            //double f = 0;
-            //double *gradient = new double[prob->l]();
-            //void *state = NULL;
-            //double fmin = 1.0;
-            //tnc_message message = TNC_MSG_ALL;
-            //fun_obj = new l2r_huber_primal_fun(prob, Cp);
-            //fun_obj->set_print_string(liblinear_print_string);
-            //fun_obj->run_solver(
-            //    w, &f, gradient,
-            //    state, lower_bound, upper_bound,
-            //      message, fmin);
-
-            //delete[] lower_bound;
-            //delete[] upper_bound;
-            //delete[] gradient;
-            //delete fun_obj;
-            //break;
-			//solve_l2r_l1l2_svc(prob, w, eps, Cp, Cn, L2R_L1LOSS_SVC_DUAL);
-			//break;
         }
 		case L1R_L2LOSS_SVC:
 		{
             info("not implemented.");
             exit(1);
-			//feature_node *x_space = NULL;
-			//transpose(prob, &x_space ,&prob_col);
-			//solve_l1r_l2_svc(&prob_col, w, primal_solver_tol, Cp, Cn);
-			//delete [] prob_col.y;
-			//delete [] prob_col.x;
-			//delete [] x_space;
-			//break;
 		}
 		case L1R_LR:
 		{
             info("not implemented.");
             exit(1);
-			//problem prob_col;
-			//feature_node *x_space = NULL;
-			//transpose(prob, &x_space ,&prob_col);
-			//solve_l1r_lr(&prob_col, w, primal_solver_tol, Cp, Cn);
-			//delete [] prob_col.y;
-			//delete [] prob_col.x;
-			//delete [] x_space;
-			//break;
 		}
 		case L2R_LR_DUAL:
         {
             info("not implemented.");
             exit(1);
-			//solve_l2r_lr_dual(prob, w, eps, Cp, Cn);
-			//break;
         }
 		case L2R_L2LOSS_SVR:
 		{
             info("not implemented.");
             exit(1);
-			//double *C = new double[prob->l];
-			//for(int i = 0; i < prob->l; i++)
-			//	C[i] = param->C;
-
-			//fun_obj=new l2r_l2_svr_fun(prob, C, param->p);
-			//TRON tron_obj(fun_obj, param->eps);
-			//tron_obj.set_print_string(liblinear_print_string);
-			//tron_obj.tron(w);
-			//delete fun_obj;
-			//delete C;
-			//break;
 
 		}
 		case L2R_L1LOSS_SVR_DUAL:
@@ -460,8 +372,61 @@ model* train(const problem *prob, const parameter *param)
 
 void cross_validation(const problem *prob, const parameter *param, int nr_fold, double *target)
 {
-    info("not implemented");
-    exit(1);
+	int i;
+	int *fold_start = Malloc(int,(size_t)(nr_fold+1));
+	int l = prob->l;
+	int *perm = Malloc(int, (size_t)l);
+
+	for(i=0;i<l;i++) perm[i]=i;
+	for(i=0;i<l;i++)
+	{
+		int j = i+rand()%(l-i);
+		swap(perm[i],perm[j]);
+	}
+	for(i=0;i<=nr_fold;i++)
+		fold_start[i]=i*l/nr_fold;
+
+	for(i=0;i<nr_fold;i++)
+	{
+		int begin = fold_start[i];
+		int end = fold_start[i+1];
+		int j,k;
+		struct problem subprob;
+
+		subprob.bias = prob->bias;
+		subprob.n = prob->n;
+		subprob.l = l-(end-begin);
+		subprob.x = Malloc(struct feature_node*, (size_t)subprob.l);
+		subprob.y = Malloc(double, (size_t)subprob.l);
+        subprob.C_e = Malloc(double, (size_t)subprob.l);
+        subprob.rel = Malloc(double, (size_t)subprob.l);
+
+		k=0;
+		for(j=0;j<begin;j++)
+		{
+			subprob.x[k] = prob->x[perm[j]];
+			subprob.y[k] = prob->y[perm[j]];
+            subprob.C_e[k] = prob->C_e[perm[j]];
+            subprob.rel[k] = prob->rel[perm[j]];
+			++k;
+		}
+		for(j=end;j<l;j++)
+		{
+			subprob.x[k] = prob->x[perm[j]];
+			subprob.y[k] = prob->y[perm[j]];
+            subprob.C_e[k] = prob->C_e[perm[j]];
+            subprob.rel[k] = prob->rel[perm[j]];
+			++k;
+		}
+		struct model *submodel = train(&subprob,param);
+		for(j=begin;j<end;j++)
+			target[perm[j]] = predict(submodel,prob->x[perm[j]]);
+		free_and_destroy_model(&submodel);
+		free(subprob.x);
+		free(subprob.y);
+	}
+	free(fold_start);
+	free(perm);
 }
 
 double predict_values(const struct model *model_, const struct feature_node *x, double *dec_values)
@@ -497,9 +462,9 @@ double predict_values(const struct model *model_, const struct feature_node *x, 
 		//if(model_->param.solver_type == L2R_L2LOSS_SVR ||
 		//   model_->param.solver_type == L2R_L1LOSS_SVR_DUAL ||
 		//   model_->param.solver_type == L2R_L2LOSS_SVR_DUAL)
-			return dec_values[0];
+		//	return dec_values[0];
 		//else
-		//	return (dec_values[0]>0)?model_->label[0]:model_->label[1];
+			return (dec_values[0]>0)?model_->label[0]:model_->label[1];
 	}
 	else
 	{

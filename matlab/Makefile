@@ -4,7 +4,7 @@ MATLABDIR ?= #/Applications/MATLAB_R2010b.app
 CXX ?= g++
 #CXX = g++-3.3
 CC ?= gcc
-CFLAGS = -Wall -Wconversion -O3 -fPIC -I$(MATLABDIR)/extern/include -I..
+#CFLAGS = -Wall -Wconversion -O3 -fPIC -I$(MATLABDIR)/extern/include -I..
 
 MEX = $(MATLABDIR)/bin/mex
 MEX_OPTION = CC\#$(CXX) CXX\#$(CXX) CFLAGS\#"$(CFLAGS)" CXXFLAGS\#"$(CFLAGS)"

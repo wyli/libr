@@ -1,5 +1,5 @@
-CXX ?= g++
-CC ?= gcc
+CXX ?= c++
+CC ?= cc
 #CFLAGS = -Wall -Wconversion -O3 -fPIC
 CFLAGS = -O2 -DNDEBUG -march=native
 #CFLAGS = -Wall -Wconversion -g

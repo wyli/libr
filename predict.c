@@ -148,10 +148,10 @@ void do_predict(FILE *input, FILE *output)
 			fprintf(output,"%g\n",predict_label);
 		}
 
-		//if(predict_label == target_label)
-        if(predict_label * target_label > 0)
+		if(predict_label == target_label)
+        //if(predict_label * target_label > 0)
 			++correct;
-		error += (predict_label-target_label)*(predict_label-target_label);
+		//error += (predict_label-target_label)*(predict_label-target_label);
 		//sump += predict_label;
 		//sumt += target_label;
 		//sumpp += predict_label*predict_label;

@@ -45,7 +45,7 @@ SAG::SAG(const function *fun_obj, double eps) {
         cache[i] = new double*[neg]();
         for(j = 0; j < neg; j++) {
 
-            cache[i][j] = new double[w_size]();
+            cache[i][j] = new double[2]();
         }
     }
     tron_print_string = print_string_sag;
@@ -67,47 +67,76 @@ SAG::~SAG() {
 
 void SAG::solver(double *w_out) {
 
+    info("eps: %f\n", eps);
+    info("allocated %f MB\n", (pos*neg*2*8)/1000000.0);
     int pass = 0;
     int i, j, k;
+    int inc = 1;
     int notConverged = 1;
     double old_score = HUGE_VAL;
     double alpha;
     double n = double(pos*neg);
+    double one_coeff = 0;
+    double m = 0;
 
     double *w = new double[w_size]();
     double L = 1;
     while(notConverged) {
 
+        double *grad = new double[w_size]();
+        double *wa = new double[2]();
+        double *prev = new double[w_size]();
         for(i = pos-1; i >= 0; i--) {
             for(j = 0; j < neg; j++) {
 
 
-                double *grad = new double[w_size]();
-                fun_obj->pairGrad(w, i, j+pos, grad);
+                if(m < n) m++;
+
+                fun_obj->wTa(w, i, j+pos, wa);
+
+                fun_obj->pairGrad(wa, i, j+pos, grad);
+
  
                 L = lineSearchWrapper(L, grad, w, i, j);
                 alpha = 2.0/(L + 1);
+                one_coeff = 1.0 - alpha/n;
+
+                if(pass > 0) {
+
+                    fun_obj->pairGrad(cache[i][j], i, j+pos, prev);
+                }
+
 
                 for(k = 0; k < w_size; k++) {
 
-                    sumy[k] = sumy[k] - cache[i][j][k] + grad[k];
-                    w[k] = (1.0 - alpha/n) * w[k] - (alpha/n) * sumy[k];
-                    cache[i][j][k] = grad[k];
+                    sumy[k] = sumy[k] - prev[k] + grad[k];
+                    w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
+                    grad[k] = 0;
+                    prev[k] = 0;
+                    //cache[i][j][k] = grad[k];
                 }
-                delete[] grad;
+                cache[i][j][0] = wa[0];
+                cache[i][j][1] = wa[1];
+                wa[0] = 0;
+                wa[1] = 0;
             }
         }
-        
-        double now_score = fun_obj->fun(w);
-        if(old_score < now_score || pass > 200) {
+        delete[] grad;
+        delete[] wa;
+        delete[] prev;
+
+        double now_score = dnrm2_(&w_size, sumy, &inc) / n;
+        if(old_score < now_score) {
 
             notConverged = 0;
-            if(pass > 200) {
-
-                info("Max_iter reached, please try larger step size.\n");
-            }
         }
-        info("Pass: %d, L: %f, fun %f, pre %f\n", pass, L, now_score, old_score);
+        info("\nPass: %d, L: %e, sumY: %f,  fun: %f\n",
+                pass, L, now_score, fun_obj->fun(w));
+        if(pass > 20) {
+
+            notConverged = 0;
+            info("Max_iter reached\n");
+        }
         old_score = now_score;
         pass++;
     }
@@ -117,23 +146,26 @@ void SAG::solver(double *w_out) {
 
 double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
 
+    int inc = 1;
     double diff;
-    do {
-        diff = lineSearch(L, grad, w, i, j);
-        if(diff > eps) {
-            L = L * 2;
-        }
-    } while(diff > 1);
+    double pairloss_ij = fun_obj->pairLoss(w, i, j+pos);
+    double normF = dnrm2_(&w_size, grad, &inc);
+
+    diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;
+    while(diff > eps && L < 1e100) {
+        info(".");
+        L = L * 2.0;
+        diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;
+    }
 
     return L;
 }
 
-double SAG::lineSearch(double L, double *grad, double *w, int i, int j) {
+double SAG::lineSearch(double L, double normF, double *grad, double *w, int i, int j) {
 
-    int inc = 1, k;
+    int k;
     double a;
 
-    double normF = dnrm2_(&w_size, grad, &inc);
     if(normF > 1e-8) {
 
         double *temp = new double[w_size]();
@@ -143,7 +175,6 @@ double SAG::lineSearch(double L, double *grad, double *w, int i, int j) {
         }
 
         a = fun_obj->pairLoss(temp, i, j+pos) 
-            - fun_obj->pairLoss(w, i, j+pos)
             + (1.0/(2.0*L)) * normF;
 
         delete[] temp;

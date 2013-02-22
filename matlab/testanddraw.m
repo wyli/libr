@@ -1,23 +1,25 @@
-function mo = testanddraw( samples, targets, n, type, cost)
+function mo = testanddraw( samples, targets, n, type, cost, c)
 %TESTANDDRAW Summary of this function goes here
 %   Detailed explanation goes here
 global mind
 global maxd
 figure1 = figure;
 
-rind = randsample(size(targets, 1), n);
+%rind = randsample(size(targets, 1), n);
 %targets(1) = 1.6;
 %targets(end) = -1.6;
 scaledSamples = scaledata(samples, 1);
 %scaledSamples = [scaledSamples, ones(size(samples, 1), 1)*C_1]; 
-% if n > 0
+if n > 0
 % rind = 1:n;
-targets(rind) = targets(rind) * 2;
+%targets(rind) = targets(rind) * 2;
+targets(end) = targets(end) * 2;
+targets(end-1) = targets(end-1) * 2;
 %scaledSamples(rind, end) = 1; % adding end of the matrix for C_n
 %scaledSamples(rind, end) = scaledSamples(rind, end) * C_2;
-% end
+end
 sprintf('-s %f -e %.10f', type, cost)
-mo = train(sparse(targets), sparse(scaledSamples), sprintf('-s %d -e %.10f', type, cost));
+mo = train(sparse(targets), sparse(scaledSamples), sprintf('-s %d -e %.10f -c %f', type, cost, c));
 
 
 % evaluate svm on meshgrid in order to visualise decision boundary
@@ -25,12 +27,12 @@ mo = train(sparse(targets), sparse(scaledSamples), sprintf('-s %d -e %.10f', typ
 y = zeros(size(x1));
 for i = 1:size(x1, 1)
     for j = 1:size(x2, 1)
-        r(i, j) = predict(sparse(0), sparse(scaledata([x1(i, j) x2(i, j)], 0)), mo, '-q');
+        r(i, j) = predict(sparse(0), sparse(scaledata([x1(i, j) x2(i, j)], 0)), mo, '-q')>0;
     end
 end
 axes1 = axes('parent', figure1);
 
-contourf(x1, x2, r, 10,  'Color', [0 0 0.75]);
+contour(x1, x2, r, 1,  'Color', [0 0 0.75]);
 colormap gray
 hold on;
 % plot samples
