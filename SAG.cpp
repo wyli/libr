@@ -47,7 +47,7 @@ SAG::SAG(const function *fun_obj, double eps) {
         cache[i] = new double*[neg]();
         for(j = 0; j < neg; j++) {
 
-            cache[i][j] = new double[2]();
+            cache[i][j] = new double[3]();
         }
     }
     tron_print_string = print_string_sag;
@@ -71,7 +71,7 @@ SAG::~SAG() {
 void SAG::solver(double *w_out) {
 
     info("eps: %f\n", eps);
-    info("allocated %f MB\n", (pos*neg*2*8)/1000000.0);
+    info("allocated %f MB\n", (pos*neg*3*8)/1000000.0);
     int pass = 0;
     int i, j, k;
     int inc = 1;
@@ -88,7 +88,7 @@ void SAG::solver(double *w_out) {
     while(notConverged) {
 
         double *grad = new double[w_size]();
-        double *wa = new double[2]();
+        double *wa = new double[3]();
         double *prev = new double[w_size]();
         for(i = pos-1; i >= 0; i--) {
             for(j = 0; j < neg; j++) {
@@ -121,10 +121,9 @@ void SAG::solver(double *w_out) {
                 }
                 cache[i][j][0] = wa[0];
                 cache[i][j][1] = wa[1];
-                wa[0] = 0;
-                wa[1] = 0;
+                cache[i][j][2] = wa[2];
 
-                L = L * smoothparam;
+                L *= smoothparam;
             }
         }
         delete[] grad;
@@ -163,7 +162,7 @@ double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
 
     while(diff > 0 && L < 1e100) {
         info(".");
-        L = L * 2.0;
+        L *=  2.0;
         diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;
     }
 
