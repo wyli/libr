@@ -47,7 +47,7 @@ SAG::SAG(const function *fun_obj, double eps) {
         cache[i] = new double*[neg]();
         for(j = 0; j < neg; j++) {
 
-            cache[i][j] = new double[3]();
+            cache[i][j] = new double[2]();
         }
     }
     tron_print_string = print_string_sag;
@@ -72,24 +72,25 @@ void SAG::solver(double *w_out) {
 
     info("eps: %f\n", eps);
     info("allocated %f MB\n", (pos*neg*3*8)/1000000.0);
-    int pass = 0;
-    int i, j, k;
-    int inc = 1;
+    int i, j, k, pass = 0, inc = 1;
     int notConverged = 1;
-    double old_score = HUGE_VAL;
+    double now_score, old_score = HUGE_VAL;
     double alpha;
     double n = double(pos*neg);
-    double one_coeff = 0;
-    double m = 0;
+    double nsquare = n*n;
+    double one_coeff = 0.0;
+    double m = 0.0;
     double smoothparam = pow(2, (-1/n));
 
     double *w = new double[w_size]();
-    double L = 1;
+    double L = 1.0;
+    double normy = 0.0;
     while(notConverged) {
 
         double *grad = new double[w_size]();
-        double *wa = new double[3]();
-        double *prev = new double[w_size]();
+        double *wa = new double[2]();
+        double *tempgrad = new double[2]();
+
         for(i = pos-1; i >= 0; i--) {
             for(j = 0; j < neg; j++) {
 
@@ -98,53 +99,64 @@ void SAG::solver(double *w_out) {
 
                 fun_obj->wTa(w, i, j+pos, wa);
 
-                fun_obj->pairGrad(wa, i, j+pos, grad);
+                if(pass < 1) {
 
- 
-                L = lineSearchWrapper(L, grad, w, i, j);
-                alpha = 2.0/(L + 1);
-                one_coeff = 1.0 - 2.0 * alpha / n;
+                    fun_obj->pairGrad(wa, i, j+pos, grad);
+                } else {
 
-                if(pass > 0) {
-
-                    fun_obj->pairGrad(cache[i][j], i, j+pos, prev);
+                    tempgrad[0] = wa[0] - cache[i][j][0];
+                    tempgrad[1] = wa[1] - cache[i][j][1];
+                    fun_obj->pairGrad(tempgrad, i, j+pos, grad);
                 }
 
+ 
+                //L = lineSearchWrapper(L, grad, w, i, j);
+                L = 100;
+                alpha = 2.0/(L + 1);
+                one_coeff = 1.0 - 2.0 * alpha / n;
+                normy = 0.0;
 
                 for(k = 0; k < w_size; k++) {
 
-                    sumy[k] = sumy[k] - prev[k] + grad[k];
+                    sumy[k] = sumy[k] + grad[k];
+                    normy += sumy[k] * sumy[k];
                     w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
-                    grad[k] = 0;
-                    prev[k] = 0;
-                    //cache[i][j][k] = grad[k];
+                    grad[k] = 0.0;
                 }
                 cache[i][j][0] = wa[0];
                 cache[i][j][1] = wa[1];
-                cache[i][j][2] = wa[2];
 
-                L *= smoothparam;
+                //L *= smoothparam;
+
+                now_score = normy/nsquare;
+
+                if(old_score < now_score && pass > 1) {
+
+                    info("\nconverged i: %d, j:%d", i, j);
+                    notConverged = 0;
+                    goto outofloop;
+                }
+                old_score = now_score;
             }
         }
+
+outofloop:
+        old_score = now_score;
+
         delete[] grad;
         delete[] wa;
-        delete[] prev;
-
-        double now_score = dnrm2_(&w_size, sumy, &inc) / n;
-        if(fabs(old_score - now_score) < 1e-8) {
-
-            notConverged = 0;
-        }
-        info("\nPass: %d, L: %e, sumY: %e, diff: %e, fun: %e\n",
-                pass, L, now_score, (old_score-now_score), fun_obj->fun(w));
-        if(pass > 20) {
+        delete[] tempgrad;
+        if(pass > 10) {
 
             notConverged = 0;
             info("Max_iter reached\n");
         }
-        old_score = now_score;
+
+        info("\nPass: %d, L: %e, sumY: %e, fun: %e\n",
+                pass, L, now_score, fun_obj->fun(w));
         pass++;
     }
+
     memcpy(w_out, w, sizeof(double)*(size_t)w_size);
     delete[] w;
 }

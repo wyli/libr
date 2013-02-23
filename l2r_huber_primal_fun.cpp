@@ -101,9 +101,9 @@ void l2r_huber_primal_fun::pairGrad(double *wa, int i, int j, double *g) {
 
 void l2r_huber_primal_fun::wTa(double *w, int i, int j, double *wa) {
 
+    double a;
     wa[0] = 0.0;
     wa[1] = 0.0;
-    wa[2] = 0.0;
     feature_node **s = prob->x;
     feature_node *s_i = s[i];
     feature_node *s_j = s[j];
@@ -123,9 +123,9 @@ void l2r_huber_primal_fun::wTa(double *w, int i, int j, double *wa) {
     }
     if(C_r > 0) {
 
-        wa[2] = rankLossGrad(wa[0] + wa[1] - pairDistance(i, j)) * C_r;
-        wa[0] = classLossGrad(wa[0] - 1) * C_e[i] + wa[2];
-        wa[1] = classLossGrad(wa[1] - 1) * C_e[j] * (-1.0) - wa[2];
+        a = rankLossGrad(wa[0] + wa[1] - pairDistance(i, j)) * C_r;
+        wa[0] = classLossGrad(wa[0] - 1) * C_e[i] + a;
+        wa[1] = classLossGrad(wa[1] - 1) * C_e[j] * (-1.0) - a;
     } else {
 
         wa[0] = classLossGrad(wa[0] - 1) * C_e[i];
