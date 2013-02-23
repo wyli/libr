@@ -84,35 +84,83 @@ void l2r_huber_primal_fun::pairGrad(double *wa, int i, int j, double *g) {
 
         dl = 0;
     }
-    double dl_i = classLossGrad(wa[0] - 1) * C_b * C_e[i] * prob->y[i] + dl;
-    double dl_j = classLossGrad(wa[1] - 1) * C_b * C_e[j] * prob->y[j] - dl;
+    double dl_i = classLossGrad(wa[0] - 1) * C_b * C_e[i] + dl;
+    double dl_j = classLossGrad(wa[1] - 1) * C_b * C_e[j] * (-1) - dl;
 
     feature_node **s = prob->x;
     feature_node *s_i = s[i];
     feature_node *s_j = s[j];
 
-    while(s_i->index != -1) {
+    while(s_i->index != -1 && s_j->index != -1) {
 
         g[s_i->index-1] = dl_i * s_i->value + dl_j * s_j->value;
         s_i++;
+        s_j++;
+    }
+    while(s_i->index != -1) {
+
+        g[s_i->index-1] = dl_i * s_i->value;
+        s_i++;
+    }
+    while(s_j->index != -1) {
+
+        g[s_j->index-1] = dl_j * s_j->value;
         s_j++;
     }
 }
 
 void l2r_huber_primal_fun::wTa(double *w, int i, int j, double *wa) {
 
-    wa[0] = wTx(w, i) * prob->y[i];
-    wa[1] = wTx(w, j) * prob->y[j];
+    wa[0] = 0.0;// wTx(w, i) * prob->y[i];
+    wa[1] = 0.0;// wTx(w, j) * prob->y[j];
+    feature_node **s = prob->x;
+    feature_node *s_i = s[i];
+    feature_node *s_j = s[j];
+    while(s_i->index != -1) {
+        wa[0]+= s_i->value * w[s_i->index-1];
+        wa[1]-= s_j->value * w[s_j->index-1];
+        s_i++;
+        s_j++;
+    }
+    while(s_i->index != -1) {
+        wa[0]+= s_i->value * w[s_i->index-1];
+        s_i++;
+    }
+    while(s_j->index != -1) {
+        wa[1]-= s_j->value * w[s_j->index-1];
+        s_j++;
+    }
 }
 
 double l2r_huber_primal_fun::pairLoss(double *w, int i, int j) {
 
-    double dl = classLoss((prob->y[i]) * wTx(w, i) - 1) * C_e[i];
-    dl += classLoss((prob->y[j]) * wTx(w, j) - 1) * C_e[j];
+    double wx_i = 0.0;// wTx(w, i) - 1;
+    double wx_j = 0.0;// wTx(w, j) - 1;
+
+    feature_node **s = prob->x;
+    feature_node *s_i = s[i];
+    feature_node *s_j = s[j];
+    while(s_i->index != -1) {
+        wx_i += s_i->value * w[s_i->index-1];
+        wx_j -= s_j->value * w[s_j->index-1];
+        s_i++;
+        s_j++;
+    }
+    while(s_i->index != -1) {
+        wx_i += s_i->value * w[s_i->index-1];
+        s_i++;
+    }
+    while(s_j->index != -1) {
+        wx_j -= s_j->value * w[s_j->index-1];
+        s_j++;
+    }
+
+    double dl = classLoss(wx_i - 1) * C_e[i];
+    dl += classLoss( wx_j - 1) * C_e[j];
     dl *= C_b;
 
     if(C_r > 0){
-        dl += rankLoss(wTx(w, i) - wTx(w, j) - pairDistance(i, j)) * C_r;
+        dl += rankLoss(wx_i + wx_j - pairDistance(i, j)) * C_r;
     }
 
     return dl;
@@ -173,7 +221,7 @@ double l2r_huber_primal_fun::classLossGrad(double t) {
 
 double l2r_huber_primal_fun::wTx(double *w, int i) {
 
-    double dotprod = 0;
+    double dotprod = 0.0;
     feature_node **s = prob->x;
     feature_node *s_i = s[i];
     while(s_i->index != -1) {

@@ -8,6 +8,7 @@
 extern "C" {
 #endif
 
+    extern double ddot_(int *, double *, int *, double *, int *);
     extern double dnrm2_(int *, double *, int *);
 #ifdef __cplusplus
 }
@@ -131,12 +132,12 @@ void SAG::solver(double *w_out) {
         delete[] prev;
 
         double now_score = dnrm2_(&w_size, sumy, &inc) / n;
-        if(old_score <= now_score) {
+        if(fabs(old_score - now_score) < 1e-8) {
 
             notConverged = 0;
         }
-        info("\nPass: %d, L: %e, sumY: %e,  fun: %e\n",
-                pass, L, now_score, fun_obj->fun(w));
+        info("\nPass: %d, L: %e, sumY: %e, diff: %e, fun: %e\n",
+                pass, L, now_score, (old_score-now_score), fun_obj->fun(w));
         if(pass > 20) {
 
             notConverged = 0;
@@ -153,7 +154,7 @@ double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
 
     int inc = 1;
 
-    double normF = dnrm2_(&w_size, grad, &inc);
+    double normF = ddot_(&w_size, grad, &inc, grad, &inc);
     if(normF < 1e-8) return L;
 
     double pairloss_ij = fun_obj->pairLoss(w, i, j+pos);
