@@ -101,7 +101,6 @@ void l2r_huber_primal_fun::pairGrad(double *wa, int i, int j, double *g) {
 
 void l2r_huber_primal_fun::wTa(double *w, int i, int j, double *wa) {
 
-
     wa[0] = 0.0;
     wa[1] = 0.0;
     wa[2] = 0.0;
@@ -158,7 +157,7 @@ double l2r_huber_primal_fun::pairLoss(double *w, int i, int j) {
     }
 
     double dl = classLoss(wx_i - 1) * C_e[i];
-    dl += classLoss( wx_j - 1) * C_e[j];
+    dl += classLoss(wx_j - 1) * C_e[j];
 
     if(C_r > 0){
         dl += rankLoss(wx_i + wx_j - pairDistance(i, j)) * C_r;
