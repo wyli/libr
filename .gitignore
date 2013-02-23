@@ -2,5 +2,6 @@
 *.mat
 *.model
 a
+smalltest
 smalltest*
 unilabel*

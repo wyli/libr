@@ -75,15 +75,17 @@ void SAG::solver(double *w_out) {
     int i, j, k, pass = 0, inc = 1;
     int notConverged = 1;
     double now_score, old_score = HUGE_VAL;
-    double alpha;
     double n = double(pos*neg);
     double nsquare = n*n;
-    double one_coeff = 0.0;
     double m = 0.0;
-    double smoothparam = pow(2, (-1/n));
+    //double smoothparam = pow(2, (-1/n));
 
     double *w = new double[w_size]();
-    double L = 1.0;
+
+    double L = 1000;
+    double alpha = 2.0/(L + 1);
+    double one_coeff = 1.0 - 2.0 * alpha / n;
+
     double normy = 0.0;
     while(notConverged) {
 
@@ -111,9 +113,8 @@ void SAG::solver(double *w_out) {
 
  
                 //L = lineSearchWrapper(L, grad, w, i, j);
-                L = 100;
-                alpha = 2.0/(L + 1);
-                one_coeff = 1.0 - 2.0 * alpha / n;
+                //alpha = 2.0/(L + 1);
+                //one_coeff = 1.0 - 2.0 * alpha / n;
                 normy = 0.0;
 
                 for(k = 0; k < w_size; k++) {
