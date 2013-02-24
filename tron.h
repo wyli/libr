@@ -91,9 +91,9 @@ class l2r_huber_primal_fun:public function {
 class l2r_l2_primal_fun:public l2r_huber_primal_fun {
 public:
     l2r_l2_primal_fun(const problem *prob, double weight, double c):l2r_huber_primal_fun(prob, weight, c){};
-    double rankLoss(double);
-    double rankLossGrad(double);
-    double classLoss(double);
-    double classLossGrad(double);
+    virtual double rankLoss(double);
+    virtual double rankLossGrad(double);
+    virtual double classLoss(double);
+    virtual double classLossGrad(double);
 };
 #endif

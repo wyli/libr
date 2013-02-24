@@ -72,14 +72,11 @@ void SAG::solver(double *w_out) {
 
     info("eps: %f\n", eps);
     info("allocated %f MB\n", (pos*neg*3*8)/1000000.0);
-    int i, j, k, pass = 0, inc = 1;
+    int i, j, k, pass = 0;
     int notConverged = 1;
     double now_score, old_score = HUGE_VAL;
     double n = double(pos*neg);
-    double nsquare = n*n;
     double m = 0.0;
-    //double smoothparam = pow(2, (-1/n));
-
     double *w = new double[w_size]();
 
     double L = 1000;
@@ -101,20 +98,22 @@ void SAG::solver(double *w_out) {
 
                 fun_obj->wTa(w, i, j+pos, wa);
 
-                if(pass < 1) {
-
-                    fun_obj->pairGrad(wa, i, j+pos, grad);
-                } else {
+                if(pass > 0) {
 
                     tempgrad[0] = wa[0] - cache[i][j][0];
                     tempgrad[1] = wa[1] - cache[i][j][1];
+                    if(tempgrad[0] == 0 && tempgrad[1] == 0) {
+
+                        continue;
+                    }
                     fun_obj->pairGrad(tempgrad, i, j+pos, grad);
+
+                } else {
+
+                    // first pass
+                    fun_obj->pairGrad(wa, i, j+pos, grad);
                 }
 
- 
-                //L = lineSearchWrapper(L, grad, w, i, j);
-                //alpha = 2.0/(L + 1);
-                //one_coeff = 1.0 - 2.0 * alpha / n;
                 normy = 0.0;
 
                 for(k = 0; k < w_size; k++) {
@@ -122,16 +121,13 @@ void SAG::solver(double *w_out) {
                     sumy[k] = sumy[k] + grad[k];
                     normy += sumy[k] * sumy[k];
                     w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
-                    grad[k] = 0.0;
                 }
                 cache[i][j][0] = wa[0];
                 cache[i][j][1] = wa[1];
 
-                //L *= smoothparam;
+                now_score = normy;
 
-                now_score = normy/nsquare;
-
-                if(old_score < now_score && pass > 1) {
+                if(old_score < now_score && pass > 2) {
 
                     info("\nconverged i: %d, j:%d", i, j);
                     notConverged = 0;

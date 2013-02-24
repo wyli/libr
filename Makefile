@@ -1,7 +1,7 @@
 CXX ?= c++
 CC ?= cc
 #CFLAGS = -Wall -Wconversion -O3 -fPIC
-CFLAGS = -O2 -DNDEBUG -march=native
+CFLAGS = -Wall -Wconversion -O2 -DNDEBUG -march=native
 #CFLAGS = -Wall -Wconversion -g
 LIBS = blas/blas.a
 SHVER = 1
@@ -16,13 +16,13 @@ lib: linear.o l2r_l2_primal_fun.o SAG.o l2r_huber_primal_fun.o blas/blas.a
 	else \
 		SHARED_LIB_FLAG="-shared -Wl,-soname,liblinear.so.$(SHVER)"; \
 	fi; \
-	$(CXX) $${SHARED_LIB_FLAG} linear.o SAG.o l2r_l2_primal_fun.o l2r_huber_primal_fun.o  blas/blas.a -o liblinear.so.$(SHVER)
+	$(CXX) $${SHARED_LIB_FLAG} linear.o SAG.o l2r_huber_primal_fun.o l2r_l2_primal_fun.o blas/blas.a -o liblinear.so.$(SHVER)
 
 train: SAG.o l2r_l2_primal_fun.o l2r_huber_primal_fun.o linear.o train.c blas/blas.a
-	$(CXX) $(CFLAGS) -o train train.c SAG.o l2r_l2_primal_fun.o l2r_huber_primal_fun.o linear.o $(LIBS)
+	$(CXX) $(CFLAGS) -o train train.c SAG.o l2r_huber_primal_fun.o l2r_l2_primal_fun.o linear.o $(LIBS)
 
 predict: linear.o predict.c blas/blas.a
-	$(CXX) $(CFLAGS) -o predict predict.c SAG.o l2r_l2_primal_fun.o l2r_huber_primal_fun.o linear.o $(LIBS)
+	$(CXX) $(CFLAGS) -o predict predict.c SAG.o l2r_huber_primal_fun.o l2r_l2_primal_fun.o linear.o $(LIBS)
 
 #tron.o: tron.cpp tron.h tnc.h
 	#$(CXX) $(CFLAGS) -c -o tron.o tron.cpp

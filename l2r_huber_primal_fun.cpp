@@ -166,6 +166,7 @@ double l2r_huber_primal_fun::pairLoss(double *w, int i, int j) {
     return dl;
 }
 
+inline
 double l2r_huber_primal_fun::rankLoss(double t) {
 
     // huber loss
@@ -182,6 +183,7 @@ double l2r_huber_primal_fun::rankLoss(double t) {
     return 0;
 }
 
+inline
 double l2r_huber_primal_fun::rankLossGrad(double t) {
 
 
@@ -198,6 +200,7 @@ double l2r_huber_primal_fun::rankLossGrad(double t) {
     return 0;
 }
 
+inline
 double l2r_huber_primal_fun::classLoss(double t) {
 
     // squared soft margin
@@ -219,6 +222,7 @@ double l2r_huber_primal_fun::classLossGrad(double t) {
     return 0;
 }
 
+inline
 double l2r_huber_primal_fun::wTx(double *w, int i) {
 
     double dotprod = 0.0;
