@@ -310,7 +310,7 @@ int read_problem_sparse(const mxArray *label_vec, const mxArray *instance_mat)
 	{
 		prob.x[i] = &x_space[j];
 		prob.y[i] = labels[i];
-        if(prob.y[i] * prob.y[i] < 1) {
+        if(prob.y[i] * prob.y[i] < 0) {
 
             prob.rel[i] = -1.0;
         } else {

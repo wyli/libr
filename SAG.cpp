@@ -79,7 +79,7 @@ void SAG::solver(double *w_out) {
     double m = 0.0;
     double *w = new double[w_size]();
 
-    double L = 1000;
+    double L = 2;
     double alpha = 2.0/(L + 1);
     double one_coeff = 1.0 - 2.0 * alpha / n;
 
@@ -97,6 +97,8 @@ void SAG::solver(double *w_out) {
                 if(m < n) m++;
 
                 fun_obj->wTa(w, i, j+pos, wa);
+//                fun_obj->pairGrad(wa, i, j+pos, grad);
+//                L = lineSearchWrapper(L, grad, w, i, j);
 
                 if(pass > 0) {
 
@@ -110,10 +112,11 @@ void SAG::solver(double *w_out) {
 
                 } else {
 
-                    // first pass
+                     //first pass
                     fun_obj->pairGrad(wa, i, j+pos, grad);
                 }
-
+                alpha = 2.0/(L+1.0);
+                one_coeff = 1.0 - 2.0 * alpha / n;
                 normy = 0.0;
 
                 for(k = 0; k < w_size; k++) {
@@ -127,7 +130,7 @@ void SAG::solver(double *w_out) {
 
                 now_score = normy;
 
-                if(old_score < now_score && pass > 2) {
+                if(old_score < now_score && pass > 5) {
 
                     info("\nconverged i: %d, j:%d", i, j);
                     notConverged = 0;
@@ -169,7 +172,7 @@ double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {
 
     double diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;
 
-    while(diff > 0 && L < 1e100) {
+    while(diff > 0 && L < 1e10) {
         info(".");
         L *=  2.0;
         diff = lineSearch(L, normF, grad, w, i, j) - pairloss_ij;

@@ -368,11 +368,11 @@ void read_problem(const char *filename)
 
         if(prob.y[i] > 0) {
 
-            prob.C_e[i] = prob.y[i];
+            prob.C_e[i] = 1.0 / prob.y[i];
             prob.y[i] = 1.0;
         } else {
 
-            prob.C_e[i] = prob.y[i] * (-1.0);
+            prob.C_e[i] = -1.0 / prob.y[i];
             prob.y[i] = -1.0;
         }
         // end new
