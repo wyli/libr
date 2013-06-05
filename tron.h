@@ -86,6 +86,7 @@ class l2r_huber_primal_fun:public function {
         double nr_over;
 
         double *z;
+        double *C_e_par;
 };
 
 class l2r_l2_primal_fun:public l2r_huber_primal_fun {

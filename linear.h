@@ -16,7 +16,7 @@ struct problem
 	int l, n;
 	double *y;
 	struct feature_node **x;
-	double bias;            /* < 0 if no bias term */  
+	double bias;            /* < 0 if no bias term */
     double *C_e; /*controlling C for each point*/
     double *rel; /* > 0 high confi, < 0 low confi*/
     int *start;

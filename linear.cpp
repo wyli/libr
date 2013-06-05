@@ -128,7 +128,7 @@ static void group_classes_as_binary(const problem *prob,
             ++count[1];
             data_label[i] = 1;
         } else {
-            info("unknown label, I'm quiting");
+            info("unknown label, quiting");
             exit(1);
         }
     }

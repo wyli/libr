@@ -79,16 +79,18 @@ void SAG::solver(double *w_out) {
     double m = 0.0;
     double *w = new double[w_size]();
 
-    double L = 2;
-    double alpha = 2.0/(L + 1);
+    double L = 100;
+    double alpha = 2.0/(L + 0.001 * n);
     double one_coeff = 1.0 - 2.0 * alpha / n;
+    alpha = 2.0/(L+0.001 * n);
+    one_coeff = 1.0 - alpha / n;
 
     double normy = 0.0;
+    double *wa = new double[2]();
+    double *tempgrad = new double[2]();
+    double *grad = new double[w_size]();
     while(notConverged) {
 
-        double *grad = new double[w_size]();
-        double *wa = new double[2]();
-        double *tempgrad = new double[2]();
 
         for(i = pos-1; i >= 0; i--) {
             for(j = 0; j < neg; j++) {
@@ -104,19 +106,16 @@ void SAG::solver(double *w_out) {
 
                     tempgrad[0] = wa[0] - cache[i][j][0];
                     tempgrad[1] = wa[1] - cache[i][j][1];
-                    if(tempgrad[0] == 0 && tempgrad[1] == 0) {
-
-                        continue;
-                    }
                     fun_obj->pairGrad(tempgrad, i, j+pos, grad);
-
                 } else {
 
                      //first pass
                     fun_obj->pairGrad(wa, i, j+pos, grad);
                 }
-                alpha = 2.0/(L+1.0);
-                one_coeff = 1.0 - 2.0 * alpha / n;
+
+                //alpha = 2.0/(L+0.001 * n);
+                //one_coeff = 1.0 - 2.0 * alpha / n;
+                //one_coeff = 1.0 - alpha / n;
                 normy = 0.0;
 
                 for(k = 0; k < w_size; k++) {
@@ -124,9 +123,14 @@ void SAG::solver(double *w_out) {
                     sumy[k] = sumy[k] + grad[k];
                     normy += sumy[k] * sumy[k];
                     w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
+                    grad[k] = 0.0;
                 }
                 cache[i][j][0] = wa[0];
                 cache[i][j][1] = wa[1];
+                wa[0] = 0.0;
+                wa[1] = 0.0;
+                tempgrad[0] = 0.0;
+                tempgrad[1] = 0.0;
 
                 now_score = normy;
 
@@ -143,9 +147,6 @@ void SAG::solver(double *w_out) {
 outofloop:
         old_score = now_score;
 
-        delete[] grad;
-        delete[] wa;
-        delete[] tempgrad;
         if(pass > 10) {
 
             notConverged = 0;
@@ -159,6 +160,9 @@ outofloop:
 
     memcpy(w_out, w, sizeof(double)*(size_t)w_size);
     delete[] w;
+    delete[] wa;
+    delete[] grad;
+    delete[] tempgrad;
 }
 
 double SAG::lineSearchWrapper(double L, double *grad, double *w, int i, int j) {

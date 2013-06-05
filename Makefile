@@ -1,8 +1,9 @@
 CXX ?= c++
 CC ?= cc
 #CFLAGS = -Wall -Wconversion -O3 -fPIC
-CFLAGS = -Wall -Wconversion -O2 -DNDEBUG -march=native
-#CFLAGS = -Wall -Wconversion -g
+#CFLAGS = -Wall -Wconversion -O2 -DNDEBUG -march=native
+#CFLAGS = -Wall -Wconversion -O3 -DNDEBUG -march=native -mtune=native
+CFLAGS = -Wall -Wconversion -g
 LIBS = blas/blas.a
 SHVER = 1
 OS = $(shell uname)
@@ -49,7 +50,8 @@ blas/blas.a: blas/*.c blas/*.h
 	make -C blas OPTFLAGS='$(CFLAGS)' CC='$(CC)';
 
 clean:
-	make -C blas clean
-	make -C matlab clean
+	#echo hello
+	#make -C blas clean
+	#make -C matlab clean
 	rm -f *~ linear.o train predict liblinear.so.$(SHVER)
 	rm -f  l2r_l2_primal_fun.o l2r_huber_primal_fun.o SAG.o
