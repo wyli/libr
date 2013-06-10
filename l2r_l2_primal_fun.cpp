@@ -1,6 +1,5 @@
 #include "tron.h"
 
-inline
 double l2r_l2_primal_fun::rankLoss(double t) {
 
     if(t < 0) {
@@ -14,7 +13,6 @@ double l2r_l2_primal_fun::rankLoss(double t) {
     return 0;
 }
 
-inline
 double l2r_l2_primal_fun::rankLossGrad(double t) {
 
     if(t < 0) {
@@ -28,7 +26,6 @@ double l2r_l2_primal_fun::rankLossGrad(double t) {
     return 0;
 }
 
-inline
 double l2r_l2_primal_fun::classLoss(double t) {
 
     // squared soft margin
@@ -40,7 +37,6 @@ double l2r_l2_primal_fun::classLoss(double t) {
     return t < 0 ? t*t : 0;
 }
 
-inline
 double l2r_l2_primal_fun::classLossGrad(double t) {
 
     //if(t < 0) {

@@ -49,6 +49,9 @@ linear.o: linear.cpp linear.h
 blas/blas.a: blas/*.c blas/*.h
 	make -C blas OPTFLAGS='$(CFLAGS)' CC='$(CC)';
 
+test:
+	$(CXX) -v
+
 clean:
 	#echo hello
 	#make -C blas clean
