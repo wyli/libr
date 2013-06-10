@@ -6,3 +6,4 @@ smalltest
 smalltest*
 unilabel*
 *.mexmaci64
+blas/.*
