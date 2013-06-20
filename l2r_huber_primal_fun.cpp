@@ -89,54 +89,54 @@ void l2r_huber_primal_fun::pairGrad(double *wa, int i, int j, double *g) {
     feature_node *s_i = s[i];
     feature_node *s_j = s[j];
 
-   // while(s_i->index != -1 && s_j->index != -1) {
+    while(s_i->index != -1 && s_j->index != -1) {
 
-   //     g[s_i->index-1] = wa[0] * s_i->value + wa[1] * s_j->value;
-   //     s_i++;
-   //     s_j++;
-   // }
-   // temporary!!!
-    for(int x = 0; x < 200; x+=10) {
-        g[(s_i+x)->index-1] = wa[0] * (s_i+x)->value + wa[1] * (s_j+x)->value;
-        g[(s_i+x)->index-1] = wa[0] * (s_i+x)->value + wa[1] * (s_j+x)->value;
-
-        g[(s_i+x+1)->index-1] = wa[0] * (s_i+x+1)->value + wa[1] * (s_j+x+1)->value;
-        g[(s_i+x+1)->index-1] = wa[0] * (s_i+x+1)->value + wa[1] * (s_j+x+1)->value;
-
-        g[(s_i+x+2)->index-1] = wa[0] * (s_i+x+2)->value + wa[1] * (s_j+x+2)->value;
-        g[(s_i+x+2)->index-1] = wa[0] * (s_i+x+2)->value + wa[1] * (s_j+x+2)->value;
-
-        g[(s_i+x+3)->index-1] = wa[0] * (s_i+x+3)->value + wa[1] * (s_j+x+3)->value;
-        g[(s_i+x+3)->index-1] = wa[0] * (s_i+x+3)->value + wa[1] * (s_j+x+3)->value;
-
-        g[(s_i+x+4)->index-1] = wa[0] * (s_i+x+4)->value + wa[1] * (s_j+x+4)->value;
-        g[(s_i+x+4)->index-1] = wa[0] * (s_i+x+4)->value + wa[1] * (s_j+x+4)->value;
-
-        g[(s_i+x+5)->index-1] = wa[0] * (s_i+x+5)->value + wa[1] * (s_j+x+5)->value;
-        g[(s_i+x+5)->index-1] = wa[0] * (s_i+x+5)->value + wa[1] * (s_j+x+5)->value;
-
-        g[(s_i+x+6)->index-1] = wa[0] * (s_i+x+6)->value + wa[1] * (s_j+x+6)->value;
-        g[(s_i+x+6)->index-1] = wa[0] * (s_i+x+6)->value + wa[1] * (s_j+x+6)->value;
-
-        g[(s_i+x+7)->index-1] = wa[0] * (s_i+x+7)->value + wa[1] * (s_j+x+7)->value;
-        g[(s_i+x+7)->index-1] = wa[0] * (s_i+x+7)->value + wa[1] * (s_j+x+7)->value;
-
-        g[(s_i+x+8)->index-1] = wa[0] * (s_i+x+8)->value + wa[1] * (s_j+x+8)->value;
-        g[(s_i+x+8)->index-1] = wa[0] * (s_i+x+8)->value + wa[1] * (s_j+x+8)->value;
-
-        g[(s_i+x+9)->index-1] = wa[0] * (s_i+x+9)->value + wa[1] * (s_j+x+9)->value;
-        g[(s_i+x+9)->index-1] = wa[0] * (s_i+x+9)->value + wa[1] * (s_j+x+9)->value;
+        g[s_i->index-1] = wa[0] * s_i->value + wa[1] * s_j->value;
+        s_i++;
+        s_j++;
     }
-    //while(s_i->index != -1) {
+   // unrolling loops for 200-d features.
+   // for(int x = 0; x < 200; x+=10) {
+   //     g[(s_i+x)->index-1] = wa[0] * (s_i+x)->value + wa[1] * (s_j+x)->value;
+   //     g[(s_i+x)->index-1] = wa[0] * (s_i+x)->value + wa[1] * (s_j+x)->value;
 
-    //    g[s_i->index-1] = wa[0] * s_i->value;
-    //    s_i++;
-    //}
-    //while(s_j->index != -1) {
+   //     g[(s_i+x+1)->index-1] = wa[0] * (s_i+x+1)->value + wa[1] * (s_j+x+1)->value;
+   //     g[(s_i+x+1)->index-1] = wa[0] * (s_i+x+1)->value + wa[1] * (s_j+x+1)->value;
 
-    //    g[s_j->index-1] = wa[1] * s_j->value;
-    //    s_j++;
-    //}
+   //     g[(s_i+x+2)->index-1] = wa[0] * (s_i+x+2)->value + wa[1] * (s_j+x+2)->value;
+   //     g[(s_i+x+2)->index-1] = wa[0] * (s_i+x+2)->value + wa[1] * (s_j+x+2)->value;
+
+   //     g[(s_i+x+3)->index-1] = wa[0] * (s_i+x+3)->value + wa[1] * (s_j+x+3)->value;
+   //     g[(s_i+x+3)->index-1] = wa[0] * (s_i+x+3)->value + wa[1] * (s_j+x+3)->value;
+
+   //     g[(s_i+x+4)->index-1] = wa[0] * (s_i+x+4)->value + wa[1] * (s_j+x+4)->value;
+   //     g[(s_i+x+4)->index-1] = wa[0] * (s_i+x+4)->value + wa[1] * (s_j+x+4)->value;
+
+   //     g[(s_i+x+5)->index-1] = wa[0] * (s_i+x+5)->value + wa[1] * (s_j+x+5)->value;
+   //     g[(s_i+x+5)->index-1] = wa[0] * (s_i+x+5)->value + wa[1] * (s_j+x+5)->value;
+
+   //     g[(s_i+x+6)->index-1] = wa[0] * (s_i+x+6)->value + wa[1] * (s_j+x+6)->value;
+   //     g[(s_i+x+6)->index-1] = wa[0] * (s_i+x+6)->value + wa[1] * (s_j+x+6)->value;
+
+   //     g[(s_i+x+7)->index-1] = wa[0] * (s_i+x+7)->value + wa[1] * (s_j+x+7)->value;
+   //     g[(s_i+x+7)->index-1] = wa[0] * (s_i+x+7)->value + wa[1] * (s_j+x+7)->value;
+
+   //     g[(s_i+x+8)->index-1] = wa[0] * (s_i+x+8)->value + wa[1] * (s_j+x+8)->value;
+   //     g[(s_i+x+8)->index-1] = wa[0] * (s_i+x+8)->value + wa[1] * (s_j+x+8)->value;
+
+   //     g[(s_i+x+9)->index-1] = wa[0] * (s_i+x+9)->value + wa[1] * (s_j+x+9)->value;
+   //     g[(s_i+x+9)->index-1] = wa[0] * (s_i+x+9)->value + wa[1] * (s_j+x+9)->value;
+   // }
+    while(s_i->index != -1) {
+
+        g[s_i->index-1] = wa[0] * s_i->value;
+        s_i++;
+    }
+    while(s_j->index != -1) {
+
+        g[s_j->index-1] = wa[1] * s_j->value;
+        s_j++;
+    }
 }
 
 void l2r_huber_primal_fun::wTa(double *w, int i, int j, double *wa) {
@@ -148,56 +148,56 @@ void l2r_huber_primal_fun::wTa(double *w, int i, int j, double *wa) {
     feature_node **s = prob->x;
     feature_node *s_i = s[i];
     feature_node *s_j = s[j];
-    //while(s_i->index != -1 && s_j->index != -1) {
+    while(s_i->index != -1 && s_j->index != -1) {
 
-    //    wa[0] += s_i->value * w[s_i->index-1];
-    //    wa[1] -= s_j->value * w[s_j->index-1];
-    //    s_i++;
-    //    s_j++;
-    //}
-    // temporary!!!
-    for(int x = 0; x < 200; x+=10) {
-
-        wa[0] += (s_i+x)->value * w[(s_i+x)->index-1];
-        wa[1] -= (s_j+x)->value * w[(s_j+x)->index-1];
-
-        wa[0] += (s_i+x+1)->value * w[(s_i+x+1)->index-1];
-        wa[1] -= (s_j+x+1)->value * w[(s_j+x+1)->index-1];
-
-        wa[0] += (s_i+x+2)->value * w[(s_i+x+2)->index-1];
-        wa[1] -= (s_j+x+2)->value * w[(s_j+x+2)->index-1];
-
-        wa[0] += (s_i+x+3)->value * w[(s_i+x+3)->index-1];
-        wa[1] -= (s_j+x+3)->value * w[(s_j+x+3)->index-1];
-
-        wa[0] += (s_i+x+4)->value * w[(s_i+x+4)->index-1];
-        wa[1] -= (s_j+x+4)->value * w[(s_j+x+4)->index-1];
-
-        wa[0] += (s_i+x+5)->value * w[(s_i+x+5)->index-1];
-        wa[1] -= (s_j+x+5)->value * w[(s_j+x+5)->index-1];
-
-        wa[0] += (s_i+x+6)->value * w[(s_i+x+6)->index-1];
-        wa[1] -= (s_j+x+6)->value * w[(s_j+x+6)->index-1];
-
-        wa[0] += (s_i+x+7)->value * w[(s_i+x+7)->index-1];
-        wa[1] -= (s_j+x+7)->value * w[(s_j+x+7)->index-1];
-
-        wa[0] += (s_i+x+8)->value * w[(s_i+x+8)->index-1];
-        wa[1] -= (s_j+x+8)->value * w[(s_j+x+8)->index-1];
-
-        wa[0] += (s_i+x+9)->value * w[(s_i+x+9)->index-1];
-        wa[1] -= (s_j+x+9)->value * w[(s_j+x+9)->index-1];
+        wa[0] += s_i->value * w[s_i->index-1];
+        wa[1] -= s_j->value * w[s_j->index-1];
+        s_i++;
+        s_j++;
     }
-    //while(s_i->index != -1) {
+    // unrolling loops for 200-d features.
+    //for(int x = 0; x < 200; x+=10) {
 
-    //    wa[0] += s_i->value * w[s_i->index-1];
-    //    s_i++;
-    //}
-    //while(s_j->index != -1) {
+    //    wa[0] += (s_i+x)->value * w[(s_i+x)->index-1];
+    //    wa[1] -= (s_j+x)->value * w[(s_j+x)->index-1];
 
-    //    wa[1] -= s_j->value * w[s_j->index-1];
-    //    s_j++;
+    //    wa[0] += (s_i+x+1)->value * w[(s_i+x+1)->index-1];
+    //    wa[1] -= (s_j+x+1)->value * w[(s_j+x+1)->index-1];
+
+    //    wa[0] += (s_i+x+2)->value * w[(s_i+x+2)->index-1];
+    //    wa[1] -= (s_j+x+2)->value * w[(s_j+x+2)->index-1];
+
+    //    wa[0] += (s_i+x+3)->value * w[(s_i+x+3)->index-1];
+    //    wa[1] -= (s_j+x+3)->value * w[(s_j+x+3)->index-1];
+
+    //    wa[0] += (s_i+x+4)->value * w[(s_i+x+4)->index-1];
+    //    wa[1] -= (s_j+x+4)->value * w[(s_j+x+4)->index-1];
+
+    //    wa[0] += (s_i+x+5)->value * w[(s_i+x+5)->index-1];
+    //    wa[1] -= (s_j+x+5)->value * w[(s_j+x+5)->index-1];
+
+    //    wa[0] += (s_i+x+6)->value * w[(s_i+x+6)->index-1];
+    //    wa[1] -= (s_j+x+6)->value * w[(s_j+x+6)->index-1];
+
+    //    wa[0] += (s_i+x+7)->value * w[(s_i+x+7)->index-1];
+    //    wa[1] -= (s_j+x+7)->value * w[(s_j+x+7)->index-1];
+
+    //    wa[0] += (s_i+x+8)->value * w[(s_i+x+8)->index-1];
+    //    wa[1] -= (s_j+x+8)->value * w[(s_j+x+8)->index-1];
+
+    //    wa[0] += (s_i+x+9)->value * w[(s_i+x+9)->index-1];
+    //    wa[1] -= (s_j+x+9)->value * w[(s_j+x+9)->index-1];
     //}
+    while(s_i->index != -1) {
+
+        wa[0] += s_i->value * w[s_i->index-1];
+        s_i++;
+    }
+    while(s_j->index != -1) {
+
+        wa[1] -= s_j->value * w[s_j->index-1];
+        s_j++;
+    }
 
     a = rankLossGrad(wa[0] + wa[1] - pairDistance(i, j)) * C_r;
     wa[0] = classLossGrad(wa[0] - 1) * C_e_par[i] + a;

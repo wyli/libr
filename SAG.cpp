@@ -118,65 +118,66 @@ void SAG::solver(double *w_out) {
                 //one_coeff = 1.0 - alpha / n;
                 normy = 0.0;
 
-                //for(k = 0; k < w_size; k++) {
-
-                //    sumy[k] = sumy[k] + grad[k];
-                //    normy += sumy[k] * sumy[k];
-                //    w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
-                //    grad[k] = 0.0;
-                //}
-                for(k = 0; k < 200; k+=10) {
+                for(k = 0; k < w_size; k++) {
 
                     sumy[k] = sumy[k] + grad[k];
                     normy += sumy[k] * sumy[k];
                     w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
                     grad[k] = 0.0;
-
-                    sumy[k+1] = sumy[k+1] + grad[k+1];
-                    normy += sumy[k+1] * sumy[k+1];
-                    w[k+1] = one_coeff * w[k+1] - (alpha/m) * sumy[k+1];
-                    grad[k+1] = 0.0;
-
-                    sumy[k+2] = sumy[k+2] + grad[k+2];
-                    normy += sumy[k+2] * sumy[k+2];
-                    w[k+2] = one_coeff * w[k+2] - (alpha/m) * sumy[k+2];
-                    grad[k+2] = 0.0;
-
-                    sumy[k+3] = sumy[k+3] + grad[k+3];
-                    normy += sumy[k+3] * sumy[k+3];
-                    w[k+3] = one_coeff * w[k+3] - (alpha/m) * sumy[k+3];
-                    grad[k+3] = 0.0;
-
-                    sumy[k+4] = sumy[k+4] + grad[k+4];
-                    normy += sumy[k+4] * sumy[k+4];
-                    w[k+4] = one_coeff * w[k+4] - (alpha/m) * sumy[k+4];
-                    grad[k+4] = 0.0;
-
-                    sumy[k+5] = sumy[k+5] + grad[k+5];
-                    normy += sumy[k+5] * sumy[k+5];
-                    w[k+5] = one_coeff * w[k+5] - (alpha/m) * sumy[k+5];
-                    grad[k+5] = 0.0;
-
-                    sumy[k+6] = sumy[k+6] + grad[k+6];
-                    normy += sumy[k+6] * sumy[k+6];
-                    w[k+6] = one_coeff * w[k+6] - (alpha/m) * sumy[k+6];
-                    grad[k+6] = 0.0;
-
-                    sumy[k+7] = sumy[k+7] + grad[k+7];
-                    normy += sumy[k+7] * sumy[k+7];
-                    w[k+7] = one_coeff * w[k+7] - (alpha/m) * sumy[k+7];
-                    grad[k+7] = 0.0;
-
-                    sumy[k+8] = sumy[k+8] + grad[k+8];
-                    normy += sumy[k+8] * sumy[k+8];
-                    w[k+8] = one_coeff * w[k+8] - (alpha/m) * sumy[k+8];
-                    grad[k+8] = 0.0;
-
-                    sumy[k+9] = sumy[k+9] + grad[k+9];
-                    normy += sumy[k+9] * sumy[k+9];
-                    w[k+9] = one_coeff * w[k+9] - (alpha/m) * sumy[k+9];
-                    grad[k+9] = 0.0;
                 }
+                // unrolling loops
+                //for(k = 0; k < 200; k+=10) {
+
+                //    sumy[k] = sumy[k] + grad[k];
+                //    normy += sumy[k] * sumy[k];
+                //    w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
+                //    grad[k] = 0.0;
+
+                //    sumy[k+1] = sumy[k+1] + grad[k+1];
+                //    normy += sumy[k+1] * sumy[k+1];
+                //    w[k+1] = one_coeff * w[k+1] - (alpha/m) * sumy[k+1];
+                //    grad[k+1] = 0.0;
+
+                //    sumy[k+2] = sumy[k+2] + grad[k+2];
+                //    normy += sumy[k+2] * sumy[k+2];
+                //    w[k+2] = one_coeff * w[k+2] - (alpha/m) * sumy[k+2];
+                //    grad[k+2] = 0.0;
+
+                //    sumy[k+3] = sumy[k+3] + grad[k+3];
+                //    normy += sumy[k+3] * sumy[k+3];
+                //    w[k+3] = one_coeff * w[k+3] - (alpha/m) * sumy[k+3];
+                //    grad[k+3] = 0.0;
+
+                //    sumy[k+4] = sumy[k+4] + grad[k+4];
+                //    normy += sumy[k+4] * sumy[k+4];
+                //    w[k+4] = one_coeff * w[k+4] - (alpha/m) * sumy[k+4];
+                //    grad[k+4] = 0.0;
+
+                //    sumy[k+5] = sumy[k+5] + grad[k+5];
+                //    normy += sumy[k+5] * sumy[k+5];
+                //    w[k+5] = one_coeff * w[k+5] - (alpha/m) * sumy[k+5];
+                //    grad[k+5] = 0.0;
+
+                //    sumy[k+6] = sumy[k+6] + grad[k+6];
+                //    normy += sumy[k+6] * sumy[k+6];
+                //    w[k+6] = one_coeff * w[k+6] - (alpha/m) * sumy[k+6];
+                //    grad[k+6] = 0.0;
+
+                //    sumy[k+7] = sumy[k+7] + grad[k+7];
+                //    normy += sumy[k+7] * sumy[k+7];
+                //    w[k+7] = one_coeff * w[k+7] - (alpha/m) * sumy[k+7];
+                //    grad[k+7] = 0.0;
+
+                //    sumy[k+8] = sumy[k+8] + grad[k+8];
+                //    normy += sumy[k+8] * sumy[k+8];
+                //    w[k+8] = one_coeff * w[k+8] - (alpha/m) * sumy[k+8];
+                //    grad[k+8] = 0.0;
+
+                //    sumy[k+9] = sumy[k+9] + grad[k+9];
+                //    normy += sumy[k+9] * sumy[k+9];
+                //    w[k+9] = one_coeff * w[k+9] - (alpha/m) * sumy[k+9];
+                //    grad[k+9] = 0.0;
+                //}
                 cache[i][j][0] = wa[0];
                 cache[i][j][1] = wa[1];
                 wa[0] = 0.0;
