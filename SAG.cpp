@@ -14,6 +14,7 @@
 //}
 //#endif
 
+//TODO:line search for steps
 static void print_string_sag(const char *buf) {
 
     fputs(buf, stdout);
@@ -125,7 +126,7 @@ void SAG::solver(double *w_out) {
                     w[k] = one_coeff * w[k] - (alpha/m) * sumy[k];
                     grad[k] = 0.0;
                 }
-                // unrolling loops
+                // unrolling loops for 200-d features
                 //for(k = 0; k < 200; k+=10) {
 
                 //    sumy[k] = sumy[k] + grad[k];
