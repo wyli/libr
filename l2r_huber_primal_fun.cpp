@@ -230,8 +230,8 @@ double l2r_huber_primal_fun::pairLoss(double *w, int i, int j) {
         s_j++;
     }
 
-    return classLoss(wx_i - 1) * C_e_par[i] 
-        + classLoss(wx_j - 1) * C_e_par[j] 
+    return classLoss(wx_i - 1) * C_e_par[i]
+        + classLoss(wx_j - 1) * C_e_par[j]
         + rankLoss(wx_i + wx_j - pairDistance(i, j)) * C_r;
 }
 
