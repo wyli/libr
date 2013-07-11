@@ -31,6 +31,7 @@ void exit_with_help()
 	"	 2 -- L2 regularized huber loss\n"
 	"-c cost : trading-off regularization and loss fun.\n"
 	"-e epsilon : trading-offf class. loss and ranking loss\n"
+    "for well-conditioned data\n"
 	);
 }
 
